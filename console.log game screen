@@ -1,0 +1,63 @@
+ drawGameScreen(){
+    let lastLine=""; 
+    let dtl={}; // data to log
+    let cleanX=0;
+    if (engine.getCurrentPayout()!=null){
+      dtl.multiplier=((engine.getCurrentPayout()).toFixed(2))+"x";
+      cleanX=engine.getCurrentPayout();
+    } else {
+      dtl.multiplier=-1;
+    }
+    let LastLine="";
+    if (this.missingGames()<=0){
+      lastLine=`| Tracking ${this.matches.length} consecutive games`;
+    } else {
+      lastLine=`| Tracking ${this.matches.length} games (${this.missingGames()} missing ${this.matchesMissing.length-1} identified) ~`
+    }
+    
+    // Use CSS to format the console output based on multiplier
+    
+    let style=this.styles.m1;
+    if (cleanX>1000){
+      // Fancy nyan colors?
+      style=this.styles.nyan;
+    } else if (cleanX>16){
+      style=this.styles.m4;
+    } else if (cleanX>8){
+      style=this.styles.m3;
+    } else if (cleanX>4){
+      style=this.styles.m2;
+    } else if (cleanX>2){
+      style=this.styles.m1;
+    } else {
+      style="";
+    }
+    
+    console.log(
+    `
+
+
+
+
+
+
+    
+%c
+    |
+  --+[balance]------- ${this.player.name} ----------[profit]+
+    |   GAME #${this.game.gameNum} Running with ${this.game.numPlayers-this.game.numPlayersWon} / ${this.game.numPlayers} players
+    |
+    |                       ${dtl.multiplier}       
+    |
+    | ${this.game.numPlayersWon} players have cashed out a total of ${(this.game.totalWon/100).toFixed(0)} bits
+    | 
+    |  ${((this.game.totalBet/100).toFixed(0))} bits bet. Max Profit: ${((this.game.maxProfit/100).toFixed(0))} bits 
+    |
+    ${lastLine}
+    +[luckyNumber]-------[Last nyan: ${this.lastSeen(100000)} games]-+
+  --+-------[Seen ${this.prettyX(this.randomX)} ${this.getTimesSeen(this.randomX,this.randomX)} times over ${this.randomX} games]-----+
+    |
+    `,style
+    );
+  }
+  
