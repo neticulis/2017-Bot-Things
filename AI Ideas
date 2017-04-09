@@ -1,0 +1,50 @@
+this.ai={}; // The AI itself should write much of its own code. Allowed to write or modify anywhere in this.ai
+      this.ai.drive={}; // Driving factors. Why should the AI bother running another function? or desire some specific data? anything AI knows of but hasnt acted on has an innate curiosity drive
+      this.ai.drive.curiosity(); // untouched functions, unparsed data, untried javascript statements, functions, etc 
+      this.ai.drive.fears={this.creator.happiness:'decrease'}; // innate fear towards certain functions, choices, actions, variables, instead of hardcoded non use
+      this.ai.drive.desires={this.ai.codeLength:'increase',this.totalCalculations:'increase',this.creator.happiness:'increase',this.player.bankroll:'increase'}; // drive towards certain things. Not a flat out hardcoded goal... very few hardcoded desires, the ai should create his own.
+      this.ai.drive.cares={}; // The variables, objects, and arrays this AI cares about. When these grow, bot learns what caused it
+      this.ai.drive.subconscious={} // Methods that can affect the AI's drivers, without a reason given to the AI. The AI should be able to access this, but cannot inherently see it to know it is there. only theorize at its existence based on its interference with his natural choices/desires. interesting. ridiculous. cool.
+      this.ai.learning={}; //
+      this.ai.learning.punish={}; // A sort of "pain" inhibits last action/choice
+      this.ai.learning.reward={}; // A sort of "pleasure" reinforces last action and actions linked to it
+      this.ai.aware={}; // Parts of the AI that has awareness (id's, locations, ...) for actions, data, memories, ...
+      this.ai.aware.variables={};
+      this.ai.aware.abilities={}; // AI shortcuts to every available (non code breaking) function, method, getter, etc
+      this.ai.aware.world={}; // AI will attempt to map everything it interacts with to shorthand base64 or hex IDs, for use in consciousnessStream
+      this.ai.aware.chrono={}; // Methods to allow the AI to link future, past, and current events, not only data available at the time of choice
+      this.ai.memory={}; // Memory objects will fill this, perhaps with an id, choice led to, strength, . . .
+      this.ai.memory.dictionary={} // words collected from chat (mapped to id) with no meaning attached other than the message(s) they were in
+                 // words have a strength that grows when seen, and decay over time, eventually disappearing //
+      this.ai.memory.encyclopedia={} // words linked to other words via a bond with properties like 
+                 // strength, tension, fear, desire, care, etc - Links between words decay over time, but the words do not //
+      this.ai.memory.stream=''; // ever growing string of the AI interactions, requests, calculations, thoughts...
+      this.ai.memory.choiceMap=''; // a string of 0's and 1's to start with, representing the AI's choice that leads to the next action, AI can define new choices and map may sprout 2's, 3's, f's, etc
+      this.ai.logic={}; // rules that define decision making. binary choices at conception, AI may modify. Always working towards a system that makes better decisions more often, forgetting systems that dont work, etc
+      this.ai.logic.basic={} // Basic logic, 1, 0, true, false, methods to divide a big decision into this format as many smaller binary logic decisions. 
+      this.ai.logic.fuzzy={} // Something... that when applied to data can obtain large sets of very similar, but not exact data. A fuzzy logic
+      this.ai.logic.introspective={} // AI coded logic... I have no idea. 
+      this.ai.logic.subconscious={} // Methods that can affect the AI's choices, without a reason given to the AI. The AI should be able to access this, but cannot inherently see it to know it is there. only theorize at its existence based on its interference with his natural choices/desires. interesting. ridiculous. cool.
+      this.ai.genetics={}; // Daydreaming: A helix encoded string that is the ai itself, can be used to reproduce exact ai with knowledge
+ 
+      Notes, Brainstorming, Good ideas, Bad ideas, Theories...
+        The AI does not simple choose a or b. It examines a, then examines b, then compares a and b, then makes a choice. 
+        The AI should ultimately be allowed to break rules we set, just as a human could. 
+          However, if we set up soft rules, based on high fear, consequences / punishments, and innate desire to please its creator
+            for the AI, when examining a possible action, punishments and rules (if used) will be attached
+              so the AI knows, doing this causes that, or not doing this causes that. 
+                this way a 'rule' can be as simple as action.choosesNo?creatorPleased++
+                  and creatorPleased will be a variable with a very high care and/or desire value.
+        Some basic architecture rules for AI to follow
+        The AI, when identifying a new possible action, should us a single 64 bit character to identify that action
+          and define a location for it. Actions will be defined in 64 groups of 64 groups of 64 bit characters. Thats 262,000 actions.
+            This way it will be much easier to create strings of data for ai actions and their location
+              if all actions are output as described, they will always be a 3 character string. when all string are the same length, we dont need to split them up. a 9 digit string would clearly be 3 actions.
+                also consider using 16 bit characters. 16 groups of 16 of 16 of 16 bit characters will be 65,000.
+                  The first character could be an identifier for type of id... will call them addresses now. it is.
+                    EX 0= aVariable, 1 = aFunction, 2=aMemory, 3=aThought, etc. then each group has its own 16x16x16 group inside. 
+                      EX: 19c3 means the [third] [function] in [group c] in [group 9] was accessed, saved, remembered, output, etc.
+                        This should makw it easier to psuedo a neural network, every 4 character id could have a strength attribute. and a linkStrength for every id that brought the ai to this id, and every id that comes after. making it a literal network where eventually all functions are linked to eachother through a web
+                          making stronger 'addresses'/'neurons' more likely to be remembered and/or chosen
+                      
+      
