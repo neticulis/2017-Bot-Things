@@ -1,0 +1,133 @@
+
+//////////////////// TINKERING & LEARNING ////////////////////
+//////////// ADVANCED IDEAS TO HELP ME CODE BETTER /////////
+//////////////////////////////////////////////////////////
+
+
+// SHARIABLES - SHARED VARIABLES
+/*
+// creates a new type of variable where values can only be acquired, not assigned from thin air,
+//  meaning that values are limited, and themselves have an attached value for each type, which 
+//  fluctuates with supply and demand
+//  shariables obtain their values only by taking or being given part of another shariables value
+//   initial value stores are held as different unit types that get allocated to new shariables
+// I am not entirely sure what this could be used for, but something tells me it could do some
+// interesting things, when values themselves have a value and limit
+// one basic idea for memory allocation, we have a limited 5MB in localstorage:
+// storage=new Shariable(5000000) // basically says that once these units are gone, there is no more
+// 'free' and shariables must give or take from other shariables. So we can assign a value to data
+// and a cost to the unit (storage in this case) the most valuable data will be given storage
+// units from theleast valuable data or something along those lines valueOfData>costOfUnits?giveUnits
+*/
+class Shariable {
+  constructor () {
+    this.name=null; // how do we get the variable that called this constructor?
+    this.valuables=null;
+
+  }
+  // Shariables now use Valuables as units
+  // although units are limited, shariables are not limited to the number of types of units it uses
+  give(){
+
+  }
+  take(){
+
+  }
+  // gives 1 type of valuable to another shariable in exchange for a different type
+  trade(){
+
+  }
+
+}
+
+// VALUABLES - VALUE TYPES FOR SHARIABLES
+/*
+// holds the new value types we create for shariables, dubbed units. each has a value based on supply.
+// example bits=new shariableUnit(50000,0.01) - units available, smallest unit size
+//   says there are 50000 bits, divisible into hundredths (satoshis)
+//     from here lets say we create a new Bet shariable that uses the units we just made: bits
+//      we can give the bet bits: bits.allocate(bet,500)
+// will help for things like simulations. We can create a new "fake" balance of bitcoin
+// that is allocated between all simulations, winning simulations take bits from losing ones
+//     losing simulations (0 bits left) could be destroyed..
+// lots of things could be done with it, something to brainstorm on for a few weeks
+*/
+class Valuable {
+ 
+}
+
+
+// DECISION TREES - ARRAY TREES OF 1,0 THAT END IN SOME RESULT
+/*
+// brain random.. this has to have been done before by someone. but for now I call it decision trees.
+// make an array with 2 cells. 1 and 0. each of these branch to another 1, 0 array. and 
+// another. and another. as a simple sort of choice tree for the ai. make one of these trees 
+// every new "thought", or question, or anything that results in a true or false
+// At the end of the decision trees can be the resulting action, data, calculation, whatever.
+// since the trees are so simple, all or most will be saved, and can act as part of the bots 
+// memory, if the ai travels down the tree again, that memory gets stronger, eventually the a may
+// decide to just skip the the end of the tree to the result without having to use 
+// the same logic over and over again, unless of course its something unpredictable.
+*/
+class Decision {
+// Sprout a new decision tree, a 2 celled array with branches of 2 celled arrays 
+// the branches when followed to the end will have the logic'd data/instruction
+}
+
+
+// QUESTION - RETURNS TRUE OF FALSE ON A VALID QUESTION
+/*
+// Use new Question() to get a true or false answer about certain things. Eventually as much as we can 
+// think of, so the bot ai can eventually easily run it, add questions, use the data, etc.
+*/
+class Question {
+  // Keep a log of all questions asked, and a log of all answers as a binary string
+  // any question that cannot be answered immediatly should trigger a new Thought() to monitor it
+  /*if (answer===null){
+    new Thought(this.question);
+  } else {
+    return answer
+  }*/
+}
+
+// THOUGHT - MONITORS A QUESTION ON INTERVALS UNTIL TRUE OF FALSE CAN BE OBTAINED
+/*
+// Thoughts are essentially questions whose answer will be found only after more data is available
+// Thoughts are run on intervals until a conditional for that thought is able to choose true or false // answers are obtained, or at some time out. very simple example: new Thought('game.isRunning && //player.isPlaying','player.balance') will update the player balance on intervals if playing, removing 
+// the need for the Strategy or Match to deal with it. Thoughts should be able to be quite complex...
+// are monitored frequently
+*/
+class Thought {
+
+  //the ponder method will be where we obtain any new data relevent to the thought
+  // it will often run on an interval for things that may talk a lot of time or "thought"
+  ponder(data){
+
+    this.data.merge(newData); // remember any new information obtained
+  }
+  // rest will cease that thought for a given time, starting again with setTimeout
+  rest(){
+
+  }
+  // introduce new information for this thought with the ai's understanding that it is
+  // hypothetical, not to base actions on it, but merely to finish thoughts that have incomplet data
+  // it allows an answer via surmising a fuzzy true or false, not a true true or true false
+  // which is what is normally sent back as an answer to question.
+  // allow the ai to suppose and surmize when not busy on other data, as a sort of way to come up with
+  // its own new ideas or theores
+  suppose(){
+
+  }
+  // an odd idea, if a thought is meditated on, its data is randomly calculated in a large amount of  permutations in an attempt to come to an answer by comparing the outcomes with other known data. would work well for finding patterns. When meditating, all other thoughts, and possible many actions are put on hold to help free up the cpu for all the random calculations.
+
+
+  // chosen by the ai
+  meditate(){
+
+  }
+
+}
+
+
+//////////////// END OF ADVANCED TINKERING ////////////////
+
