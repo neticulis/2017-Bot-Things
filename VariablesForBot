@@ -1,0 +1,107 @@
+      /*        Important Variables to Collect & Calculate
+                  to allow for maximum variation in strategy      */
+
+/*  Variable names shown are temporary but reflective of what they will contain
+    playersXYZ refers to us, the user running the script 
+    (player and/or players as the first word in a variable)
+    knownPlayersXYZ, numPlayersXYZ, getPlayersXYZ, refers to another user 
+   
+  //  PLAYER   STATUS
+playerIsPlaying // Boolean, after bet is accepted and player officially in game
+playerWillPlay // Boolean, player intends to play, set false to sit out
+playerNumGamesPlayed
+playerNumGamesSatOut
+
+  //  PLAYER   WON,  LOST, or NOT_PLAYED
+playersPreviousOutcome
+playersLastOutcome
+
+  //  PLAYER   WIN AND LOSS STREAKS, RATIOS, MISC
+
+playersCurrentStreakCount
+playersCurrentStreakType
+playersLastWinStreak
+playersLastLossStreak
+playersLongestWinStreak(##Games)
+playersLongestLossStreak(##Games)
+playersNumWinStreaks(##Games)
+playersNumLossStreaks(##Games)
+playersMedianWinStreak(##Games)
+playersMedianLossStreak(##Games)
+playersAverageWinStreak(##Games)
+playersAverageLossStreak(##Games)
+playersWinLossRatio(##Games)
+playersRedGreenRatio(##Games) // red players multiplier <=1.97, green >1.97
+playersRedGreenAsBinaryString(##Games) // red players multiplier <=1.97, green >1.97
+playersOutcomesAsBinaryString(##Games) // 0 for a loss 1 for a win, first character being the most recent game
+
+  //  THE PLAYERS BETS & MULTIPLIERS (the user running the script)
+
+
+playersCurrentBet
+playersCurrentMultiplier
+playersPreviousBet
+playersPreviousMultiplier
+playersMaxBet
+playersMaxMultiplier
+playersMinBet
+playersMinMultiplier
+playersCurrentBankroll
+playersInitialBankroll
+
+playersBetHistory(##Games) // array with bet amounts, cell 0 being the latest game
+playersMultiplierHistory(##Games) // array with multiplier amounts, cell 0 being the latest game
+playersMedianBet(##Games)
+playersMedianMultiplier(##Games)      
+playersAverageBet(##Games)
+playersAverageMultiplier(##Games)      
+
+    // The running bet/multi is modded/calculated just as the bet, but with no limits/resets/max/min
+        // for informational purpose, probability insight, not for betting, often negative or large 
+playersRunningBet
+playersRunningMultiplier
+
+
+  // OTHER PLAYERS DATA, BETS & MULTIPLIERS
+ 
+numBotsKnown // every player in players.known whos .isBot variable is true
+numUsersKnown // every single entity in players.known
+numPlayersKnown // every player in players.known that have played at least 1 game
+numPlayersWon
+numPlayersLost
+percentPlayersWon
+percentPlayersLost
+numPlayersJoined // players with a bet placed
+numPlayersWonPreviously
+numPlayersLostPreviously
+percentPlayersWonPreviously
+percentPlayersLostPreviously
+numPlayersJoinedPreviously
+
+
+  // all other players (aka 'known players') bets are recorded equal to our bet for an accurate comparison
+    // and thus who to follow, learn from, emulate, etc. 
+       //Actual bets are also recorded so true profits can be calced
+getKnownPlayersBet(Username,HowManyGamesAgo) // null or undefined if a player did not play that game
+getKnownPlayersMultiplier(Username,HowManyGamesAgo) // Only revealed by game engine when a player wins, else null/undefined
+
+  // Identities() history and matching bets accurately gauge how a player stacks up against us
+      // netProfit, grossProfit, gamesWon, gamesLost, gamesPlayed, messagesSent
+rankKnownPlayersBy('netProfit')
+rankKnownPlayersBy('grossProfit')
+rankKnownPlayersBy('gamesWon')
+rankKnownPlayersBy('gamesLost')
+rankKnownPlayersBy('gamesPlayed')
+rankKnownPlayersBy('messagesSent')
+
+
+
+  // Roughly multiplier/(multiplier**2)
+probabilityOf(multiplier) 
+
+  // GAME/MATCH SPECIFIC CRASH HISTORY
+gameRedGreenRatio(##Games) // green>1.97 else red
+gameRedGreenAsBinaryString(##Games) // green>1.97=1 else red=0
+gameRedGreenRatio2(##Games) // green>=2 else red
+gameRedGreenAsBinaryString2(##Games) // green>=2 is 1  red<2 is 0
+
