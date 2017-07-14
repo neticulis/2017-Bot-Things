@@ -1,0 +1,410 @@
+
+	game_starting(data = null) {
+		if (crashes.history.length > 512 && player.username == bot.masterbot) {
+			C++;
+
+			// STATUS UPDATES
+			if (game.gameID % 500 == 0) {
+				C++;
+
+				this.calced = C;
+				if (player.netProfit > 0) {
+					bot.say(`Gambletron Alert Bot v0.0604a Status Update: [Uptime: ${((((Date.now()-bot.started)/60000).toFixed(0)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))} minutes] [Calculations: ${(bot.calced.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))} (${(bot.calced/((Date.now()-bot.started)/1000)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}/s)] [Session Profit: ${(((player.netProfit/100).toFixed(0)).replace(/\B(?=(\d{3})+(?!\d))/g, ","))} bits] [Games Played/Tracked: ${player.numGamesPlayed}/${((crashes.history.length).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))}] [Players Trusted / Shitlisted / Total Known: ${bot.trustedUsers.length} / ${bot.shitlist.length} / ${Object.keys(players.known).length}]
+Over the last 32, 64, 128, 256, 512 games: ${((crashes.getRVGSum(32)/32)*100).toFixed(1)}%, ${((crashes.getRVGSum(64)/64)*100).toFixed(1)}%, ${((crashes.getRVGSum(128)/128)*100).toFixed(1)}%, ${((crashes.getRVGSum(256)/256)*100).toFixed(1)}%, ${((crashes.getRVGSum(512)/512)*100).toFixed(1)}% were green (>1.97x)`);
+
+				} else {
+					bot.say(`Gambletron Alert Bot v0.0604a Status Update: [Uptime: ${((((Date.now()-bot.started)/60000).toFixed(0)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))} minutes] [Calculations: ${(bot.calced.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))} (${(bot.calced/((Date.now()-bot.started)/1000)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}/s)] [Games Tracked: ${((crashes.history.length).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))}] [Players Trusted / Shitlisted / Total Known: ${bot.trustedUsers.length} / ${bot.shitlist.length} / ${Object.keys(players.known).length}]
+Over the last 32, 64, 128, 256, 512 games: ${((crashes.getRVGSum(32)/32)*100).toFixed(1)}%, ${((crashes.getRVGSum(64)/64)*100).toFixed(1)}%, ${((crashes.getRVGSum(128)/128)*100).toFixed(1)}%, ${((crashes.getRVGSum(256)/256)*100).toFixed(1)}%, ${((crashes.getRVGSum(512)/512)*100).toFixed(1)}% were green (>1.97x)`);
+
+				}
+
+			}
+
+			// COLLECTION TRAY / DONATIONS
+			if (game.gameID % 1666 == 0) {
+				// Lets ask for donations every 1,666 games (twice a day)
+				this.calced = C;
+				//bot.say(`Gambletron Automated Collection Tray (GACT): If the Gambletron Alert Systems have helped you win, you can show appreciation by donating to Gambletron5000 via bustabit.com/transfer - Any amount is appreciated and will ensure continued development and new features. Bonuses: 1. Insult bot freely! 2. Automatically be entered into all future giveaways! 3. Access to all future private !commands for Gambletron5000! 4. A chance to beta test the Gambletron Bet Bot (still in alpha) 5. Hugs.`);
+				bot.say(`Gambletron Automated Collection Tray (GACT): Alerts helped you win? Please consider donating to Gambletron5000 via bustabit.com/transfer to ensure continued uptime, development, and new features. donators can request custom alerts/features, are automatically entered in my giveaways, eligible for profit sharing, and a possibility to beta test the bet bot when ready (currently in alpha)`);
+			}
+
+			// IGNORE GAMBLETRON
+			if (game.gameID % 1248 == 0) {
+				// Lets let people know how to mute me
+				bot.say(`If Gambletron Alerts are bothering you (I'm sorry you feel that way!) You can type: /ignore Gambletron5000 to shut me up.`);
+			}
+
+			// LAST 150 games 10101010
+			if (game.gameID % 150 == 0) {
+				C++;
+				// Every 150 games, print out last 150 games as binary
+				bot.say(`${((crashes.getRVGSum(150)/150)*100).toFixed(1)}% of the last 150 games were green (over 1.97x) here are the last 150 games as 0 (red) and 1 (green): ${crashes.getRVGBinaryString(150)}`);
+			}
+
+
+			/*		NICE ALERTS 	 *
+			 *		NICE ALERTS		 *
+			 *		NICE ALERTS 	 *
+			 *		NICE ALERTS 	 */
+
+			if (((crashes.getRVGSum(32) / 32) * 100) >= 75) {
+				// 25% or less of last 32 games were green (rape)
+				if (Date.now() - this.alert.rape32 > 300000) {
+					// It has been at least 5 minutes since the last alert, safe to alert again
+					this.alert.rape32 = Date.now();
+					bot.say(`Gambletron Automated Woohoo Alert! (GAWA!): Woohoo! ${((crashes.getRVGSum(32)/32)*100).toFixed(1)}% of the last 32 games were green (over 1.97x) -- USE CAUTION! RAPE IS ACTIVE!`);
+				} else {
+					// We alerted about rape not long ago
+				}
+			} else if (((crashes.getRVGSum(64) / 64) * 100) >= 70) {
+				// 25% or less of last 32 games were green (rape)
+				if (Date.now() - this.alert.rape64 > 300000) {
+					// It has been at least 6 minutes since the last alert, safe to alert again
+					this.alert.rape64 = Date.now();
+					bot.say(`Gambletron Automated Woohoo Alert! (GAWA!): Woohoo! ${((crashes.getRVGSum(64)/64)*100).toFixed(1)}% of the last 64 games were green (over 1.97x) -- Choo Choo! Hope you are riding this nice green train!`);
+				} else {
+					// We alerted about rape not long ago
+				}
+			} else if (((crashes.getRVGSum(128) / 128) * 100) >= 65) {
+				// 25% or less of last 32 games were green (rape)
+				if (Date.now() - this.alert.rape128 > 300000) {
+					// It has been at least 7 minutes since the last alert, safe to alert again
+					this.alert.rape128 = Date.now();
+					bot.say(`Gambletron Automated Woohoo Alert! (GAWA!): Woohoo! ${((crashes.getRVGSum(128)/128)*100).toFixed(1)}% of the last 128 games were green (over 1.97x) -- Choo Choo! Hope you are riding this long green train!`);
+				} else {
+					// We alerted about rape not long ago
+				}
+			} else if (((crashes.getRVGSum(256) / 256) * 100) >= 61) {
+				// 25% or less of last 32 games were green (rape)
+				if (Date.now() - this.alert.rape256 > 300000) {
+					// It has been at least 8 minutes since the last alert, safe to alert again
+					this.alert.rape256 = Date.now();
+					bot.say(`Gambletron Automated Woohoo Alert! (GAWA!): Woohoo! ${((crashes.getRVGSum(256)/256)*100).toFixed(1)}% of the last 256 games were green (over 1.97x) -- Choo Choo! Hope you are riding this massive green train!`);
+				} else {
+					// We alerted about rape not long ago
+				}
+			}
+
+
+			/*		RAPE ALERTS 	 *
+			 *		RAPE ALERTS		 *
+			 *		RAPE ALERTS 	 *
+			 *		RAPE ALERTS 	 */
+
+			if (((crashes.getRVGSum(32) / 32) * 100) <= 25) {
+				// 25% or less of last 32 games were green (rape)
+				if (Date.now() - this.alert.rape32 > 300000) {
+					// It has been at least 5 minutes since the last alert, safe to alert again
+					this.alert.rape32 = Date.now();
+					bot.say(`Gambletron Automated Rape Alert! (GARA!): Only ${((crashes.getRVGSum(32)/32)*100).toFixed(2)}% of the last 32 games were green (over 1.97x) -- USE CAUTION! RAPE IS ACTIVE!`);
+				} else {
+					// We alerted about rape not long ago
+				}
+			}
+
+			if (((crashes.getRVGSum(64) / 64) * 100) <= 30) {
+				// 25% or less of last 32 games were green (rape)
+				if (Date.now() - this.alert.rape64 > 360000) {
+					// It has been at least 6 minutes since the last alert, safe to alert again
+					this.alert.rape64 = Date.now();
+					bot.say(`Gambletron Automated Rape Alert! (GARA!): Only ${((crashes.getRVGSum(64)/64)*100).toFixed(2)}% of the last 64 games were green (over 1.97x) -- USE CAUTION! EXTREME RAPE IS ACTIVE!`);
+				} else {
+					// We alerted about rape not long ago
+				}
+			}
+			if (((crashes.getRVGSum(128) / 128) * 100) <= 34) {
+				// 25% or less of last 32 games were green (rape)
+				if (Date.now() - this.alert.rape128 > 420000) {
+					// It has been at least 7 minutes since the last alert, safe to alert again
+					this.alert.rape128 = Date.now();
+					bot.say(`Gambletron Automated Rape Alert! (GARA!): Only ${((crashes.getRVGSum(128)/128)*100).toFixed(2)}% of the last 128 games were green (over 1.97x) -- USE CAUTION! INSANE RAPE IS ACTIVE!`);
+				} else {
+					// We alerted about rape not long ago
+				}
+			}
+
+			if (((crashes.getRVGSum(256) / 256) * 100) <= 39) {
+				// 25% or less of last 32 games were green (rape)
+				if (Date.now() - this.alert.rape256 > 480000) {
+					// It has been at least 8 minutes since the last alert, safe to alert again
+					this.alert.rape256 = Date.now();
+					bot.say(`Gambletron Automated Rape Alert! (GARA!): Only ${((crashes.getRVGSum(256)/256)*100).toFixed(2)}% of the last 256 games were green (over 1.97x) -- USE CAUTION! RIDICULOUS RAPE IS ACTIVE!`);
+				} else {
+					// We alerted about rape not long ago
+				}
+			}
+
+
+			/*		0x/1x ALERTS 	 *
+			 *		0x/1x ALERTS	 *
+			 *		0x/1x ALERTS 	 *
+			 *		0x/1x ALERTS 	 */
+
+			if (crashes.seen(100, '<') != false) {
+				// a 0x is in our history, we can now comment on it
+				// Alert about 0x upcoming
+				(crashes.seen(100, '<') == 100) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 100 games since the last 0x. Use slight caution.`): null;
+				(crashes.seen(100, '<') == 200) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 200 games since the last 0x. Use moderate caution.`): null;
+				(crashes.seen(100, '<') == 250) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 250 games since the last 0x. Use moderate caution.`): null;
+				(crashes.seen(100, '<') == 300) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 300 games since the last 0x. Use high caution.`): null;
+				(crashes.seen(100, '<') == 350) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 350 games since the last 0x. Use high caution.`): null;
+				(crashes.seen(100, '<') == 400) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 400 games since the last 0x. Use high caution.`): null;
+				(crashes.seen(100, '<') == 450) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 450 games since the last 0x. Use high caution.`): null;
+				(crashes.seen(100, '<') == 500) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 500 games since the last 0x. Use high caution.`): null;
+				(crashes.seen(100, '<') == 550) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 550 games since the last 0x. Use high caution.`): null;
+				(crashes.seen(100, '<') == 600) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 600 games since the last 0x. Use very high caution.`): null;
+				(crashes.seen(100, '<') == 650) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 650 games since the last 0x. Use very high caution.`): null;
+				(crashes.seen(100, '<') == 700) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 700 games since the last 0x. Use very high caution.`): null;
+				(crashes.seen(100, '<') == 750) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 750 games since the last 0x. Use very high caution.`): null;
+				(crashes.seen(100, '<') == 800) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 800 games since the last 0x. Use EXTREME caution.`): null;
+				(crashes.seen(100, '<') == 850) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 850 games since the last 0x. Use EXTREME caution.`): null;
+				(crashes.seen(100, '<') == 900) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 900 games since the last 0x. Use EXTREME caution.`): null;
+				(crashes.seen(100, '<') == 950) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 950 games since the last 0x. Use EXTREME caution.`): null;
+				(crashes.seen(100, '<') == 1000) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 1,000 games since the last 0x. Use EXTREME caution.`): null;
+				(crashes.seen(100, '<') == 1050) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 1,050 games since the last 0x. Use EXTREME caution.`): null;
+				(crashes.seen(100, '<') == 1100) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 1,000 games since the last 0x. Use EXTREME caution.`): null;
+				(crashes.seen(100, '<') == 1150) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 1,050 games since the last 0x. Use EXTREME caution.`): null;
+				(crashes.seen(100, '<') == 1200) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 1,000 games since the last 0x. Use EXTREME caution.`): null;
+				(crashes.seen(100, '<') == 1250) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 1,050 games since the last 0x. Use EXTREME caution.`): null;
+			}
+
+			if (crashes.seen(100, '==') != false) {
+				// Alert about 1.00x upcoming
+				(crashes.seen(100, '==') == 100) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 100 games since the last 1.00x. Use slight caution.`): null;
+				(crashes.seen(100, '==') == 200) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 200 games since the last 1.00x. Use moderate caution.`): null;
+				(crashes.seen(100, '==') == 300) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 300 games since the last 1.00x. Use high caution.`): null;
+				(crashes.seen(100, '==') == 400) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 400 games since the last 1.00x. Use high caution.`): null;
+				(crashes.seen(100, '==') == 500) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 500 games since the last 1.00x. Use high caution.`): null;
+				(crashes.seen(100, '==') == 600) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 600 games since the last 1.00x. Use very high caution.`): null;
+				(crashes.seen(100, '==') == 700) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 700 games since the last 1.00x. Use very high caution.`): null;
+				(crashes.seen(100, '==') == 800) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 800 games since the last 1.00x. Use EXTREME caution.`): null;
+				(crashes.seen(100, '==') == 900) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 900 games since the last 1.00x. Use EXTREME caution.`): null;
+				(crashes.seen(100, '==') == 1000) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 1,000 games since the last 1.00x. Use EXTREME caution.`): null;
+				(crashes.seen(100, '==') == 1100) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 1,100 games since the last 1.00x. Use EXTREME caution.`): null;
+				(crashes.seen(100, '==') == 1200) ? bot.say(`Gambletron Automated Alarm Alert! (GAAA!): it has been 1,200 games since the last 1.00x. Use EXTREME caution.`): null;
+
+			}
+
+
+
+
+			/*		CHASE ALERTS 	 *
+			 *		CHASE ALERTS	 *
+			 *		CHASE ALERTS	 *
+			 *		CHASE ALERTS	 */
+
+			if (crashes.seen(500, '>=') != false) {
+				// a 10x is in our history, we can now comment on it
+				(crashes.seen(500, '>=') == 15) ? bot.say(`Gambletron Automated Chase Alert (GACA): 5x is slightly overdue (it has been 15 games since the last 5x or higher was seen.)`): null;
+				(crashes.seen(500, '>=') == 25) ? bot.say(`Gambletron Automated Chase Alert (GACA): 5x is moderately overdue (it has been 25 games since the last 5x or higher was seen.)`): null;
+				(crashes.seen(500, '>=') == 35) ? bot.say(`Gambletron Automated Chase Alert (GACA): 5x is highly overdue (it has been 35 games since the last 5x or higher was seen.)`): null;
+				(crashes.seen(500, '>=') == 45) ? bot.say(`Gambletron Automated Chase Alert (GACA): 5x is very highly overdue (it has been 45 games since the last 5x or higher was seen.)`): null;
+				(crashes.seen(500, '>=') == 55) ? bot.say(`Gambletron Automated Chase Alert (GACA): 5x is EXTREMELY overdue (it has been 55 games since the last 5x or higher was seen.)`): null;
+				(crashes.seen(500, '>=') == 60) ? bot.say(`Gambletron Automated Chase Alert (GACA): 5x is INSANELY overdue (it has been 60 games since the last 5x or higher was seen.)`): null;
+				(crashes.seen(500, '>=') == 65) ? bot.say(`Gambletron Automated Chase Alert (GACA): 5x is STUPIDLY overdue (it has been 65 games since the last 5x or higher was seen.)`): null;
+
+			}
+
+			if (crashes.seen(1000, '>=') != false) {
+				// a 10x is in our history, we can now comment on it
+				(crashes.seen(1000, '>=') == 20) ? bot.say(`Gambletron Automated Chase Alert (GACA): 10x is slightly overdue (it has been 20 games since the last 10x or higher was seen.)`): null;
+				(crashes.seen(1000, '>=') == 40) ? bot.say(`Gambletron Automated Chase Alert (GACA): 10x is moderately overdue (it has been 40 games since the last 10x or higher was seen.)`): null;
+				(crashes.seen(1000, '>=') == 60) ? bot.say(`Gambletron Automated Chase Alert (GACA): 10x is highly overdue (it has been 60 games since the last 10x or higher was seen.)`): null;
+				(crashes.seen(1000, '>=') == 80) ? bot.say(`Gambletron Automated Chase Alert (GACA): 10x is very highly overdue (it has been 80 games since the last 10x or higher was seen.)`): null;
+				(crashes.seen(1000, '>=') == 100) ? bot.say(`Gambletron Automated Chase Alert (GACA): 10x is EXTREMELY overdue (it has been 100 games since the last 10x or higher was seen.)`): null;
+				(crashes.seen(1000, '>=') == 120) ? bot.say(`Gambletron Automated Chase Alert (GACA): 10x is INSANELY overdue (it has been 120 games since the last 10x or higher was seen.)`): null;
+				(crashes.seen(1000, '>=') == 140) ? bot.say(`Gambletron Automated Chase Alert (GACA): 10x is STUPIDLY overdue (it has been 140 games since the last 10x or higher was seen.)`): null;
+
+			}
+
+			if (crashes.seen(2000, '>=') != false) {
+				// a 10x is in our history, we can now comment on it
+				(crashes.seen(2000, '>=') == 40) ? bot.say(`Gambletron Automated Chase Alert (GACA): 20x is slightly overdue (it has been 40 games since the last 20x or higher was seen.)`): null;
+				(crashes.seen(2000, '>=') == 80) ? bot.say(`Gambletron Automated Chase Alert (GACA): 20x is moderately overdue (it has been 80 games since the last 20x or higher was seen.)`): null;
+				(crashes.seen(2000, '>=') == 120) ? bot.say(`Gambletron Automated Chase Alert (GACA): 20x is highly overdue (it has been 120 games since the last 20x or higher was seen.)`): null;
+				(crashes.seen(2000, '>=') == 160) ? bot.say(`Gambletron Automated Chase Alert (GACA): 20x is very highly overdue (it has been 160 games since the last 20x or higher was seen.)`): null;
+				(crashes.seen(2000, '>=') == 200) ? bot.say(`Gambletron Automated Chase Alert (GACA): 20x is EXTREMELY overdue (it has been 200 games since the last 20x or higher was seen.)`): null;
+				(crashes.seen(2000, '>=') == 240) ? bot.say(`Gambletron Automated Chase Alert (GACA): 20x is INSANELY overdue (it has been 240 games since the last 20x or higher was seen.)`): null;
+				(crashes.seen(2000, '>=') == 280) ? bot.say(`Gambletron Automated Chase Alert (GACA): 20x is STUPIDLY overdue (it has been 280 games since the last 20x or higher was seen.)`): null;
+
+			}
+
+			if (crashes.seen(5000, '>=') != false) {
+				// a 10x is in our history, we can now comment on it
+				(crashes.seen(5000, '>=') == 100) ? bot.say(`Gambletron Automated Chase Alert (GACA): 50x is slightly overdue (it has been 100 games since the last 50x or higher was seen.)`): null;
+				(crashes.seen(5000, '>=') == 150) ? bot.say(`Gambletron Automated Chase Alert (GACA): 50x is moderately overdue (it has been 150 games since the last 50x or higher was seen.)`): null;
+				(crashes.seen(5000, '>=') == 200) ? bot.say(`Gambletron Automated Chase Alert (GACA): 50x is moderately overdue (it has been 200 games since the last 50x or higher was seen.)`): null;
+				(crashes.seen(5000, '>=') == 250) ? bot.say(`Gambletron Automated Chase Alert (GACA): 50x is highly overdue (it has been 250 games since the last 50x or higher was seen.)`): null;
+				(crashes.seen(5000, '>=') == 300) ? bot.say(`Gambletron Automated Chase Alert (GACA): 50x is highly overdue (it has been 300 games since the last 50x or higher was seen.)`): null;
+				(crashes.seen(5000, '>=') == 350) ? bot.say(`Gambletron Automated Chase Alert (GACA): 50x is highly overdue (it has been 350 games since the last 50x or higher was seen.)`): null;
+				(crashes.seen(5000, '>=') == 400) ? bot.say(`Gambletron Automated Chase Alert (GACA): 50x is very highly overdue (it has been 400 games since the last 50x or higher was seen.)`): null;
+				(crashes.seen(5000, '>=') == 450) ? bot.say(`Gambletron Automated Chase Alert (GACA): 50x is very highly overdue (it has been 450 games since the last 50x or higher was seen.)`): null;
+				(crashes.seen(5000, '>=') == 500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 50x is EXTREMELY overdue (it has been 500 games since the last 50x or higher was seen.)`): null;
+				(crashes.seen(5000, '>=') == 550) ? bot.say(`Gambletron Automated Chase Alert (GACA): 50x is INSANELY overdue (it has been 550 games since the last 50x or higher was seen.)`): null;
+				(crashes.seen(5000, '>=') == 600) ? bot.say(`Gambletron Automated Chase Alert (GACA): 50x is STUPIDLY overdue (it has been 600 games since the last 50x or higher was seen.)`): null;
+
+			}
+
+			if (crashes.seen(10000, '>=') != false) {
+				// a 100x is in our history, we can now comment on it
+				(crashes.seen(10000, '>=') == 200) ? bot.say(`Gambletron Automated Chase Alert (GACA): 100x is slightly overdue (it has been 200 games since the last 100x or higher was seen.)`): null;
+				(crashes.seen(10000, '>=') == 300) ? bot.say(`Gambletron Automated Chase Alert (GACA): 100x is slightly overdue (it has been 300 games since the last 100x or higher was seen.)`): null;
+				(crashes.seen(10000, '>=') == 400) ? bot.say(`Gambletron Automated Chase Alert (GACA): 100x is moderately overdue (it has been 400 games since the last 100x or higher was seen.)`): null;
+				(crashes.seen(10000, '>=') == 500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 100x is moderately overdue (it has been 500 games since the last 100x or higher was seen.)`): null;
+				(crashes.seen(10000, '>=') == 600) ? bot.say(`Gambletron Automated Chase Alert (GACA): 100x is highly overdue (it has been 600 games since the last 100x or higher was seen.)`): null;
+				(crashes.seen(10000, '>=') == 700) ? bot.say(`Gambletron Automated Chase Alert (GACA): 100x is highly overdue (it has been 700 games since the last 100x or higher was seen.)`): null;
+				(crashes.seen(10000, '>=') == 800) ? bot.say(`Gambletron Automated Chase Alert (GACA): 100x is very highly overdue (it has been 800 games since the last 100x or higher was seen.)`): null;
+				(crashes.seen(10000, '>=') == 900) ? bot.say(`Gambletron Automated Chase Alert (GACA): 100x is very highly overdue (it has been 900 games since the last 100x or higher was seen.)`): null;
+				(crashes.seen(10000, '>=') == 1000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 100x is EXTREMELY overdue (it has been 1000 games since the last 100x or higher was seen.)`): null;
+				(crashes.seen(10000, '>=') == 1100) ? bot.say(`Gambletron Automated Chase Alert (GACA): 100x is INSANELY overdue (it has been 1100 games since the last 100x or higher was seen.)`): null;
+				(crashes.seen(10000, '>=') == 1200) ? bot.say(`Gambletron Automated Chase Alert (GACA): 100x is STUPIDLY overdue (it has been 1200 games since the last 100x or higher was seen.)`): null;
+
+			}
+
+			if (crashes.seen(25000, '>=') != false) {
+				// a 100x is in our history, we can now comment on it
+				(crashes.seen(25000, '>=') == 500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 250x is slightly overdue (it has been 500 games since the last 250x or higher was seen.)`): null;
+				(crashes.seen(25000, '>=') == 750) ? bot.say(`Gambletron Automated Chase Alert (GACA): 250x is slightly overdue (it has been 750 games since the last 250x or higher was seen.)`): null;
+				(crashes.seen(25000, '>=') == 1000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 250x is moderately overdue (it has been 1,000 games since the last 250x or higher was seen.)`): null;
+				(crashes.seen(25000, '>=') == 1250) ? bot.say(`Gambletron Automated Chase Alert (GACA): 250x is moderately overdue (it has been 1,250 games since the last 250x or higher was seen.)`): null;
+				(crashes.seen(25000, '>=') == 1500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 250x is highly overdue (it has been 1,500 games since the last 250x or higher was seen.)`): null;
+				(crashes.seen(25000, '>=') == 1750) ? bot.say(`Gambletron Automated Chase Alert (GACA): 250x is highly overdue (it has been 1,750 games since the last 250x or higher was seen.)`): null;
+				(crashes.seen(25000, '>=') == 2000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 250x is very highly overdue (it has been 2,000 games since the last 250x or higher was seen.)`): null;
+				(crashes.seen(25000, '>=') == 2250) ? bot.say(`Gambletron Automated Chase Alert (GACA): 250x is very highly overdue (it has been 2,250 games since the last 250x or higher was seen.)`): null;
+				(crashes.seen(25000, '>=') == 2500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 250x is EXTREMELY overdue (it has been 2,500 games since the last 250x or higher was seen.)`): null;
+				(crashes.seen(25000, '>=') == 2750) ? bot.say(`Gambletron Automated Chase Alert (GACA): 250x is EXTREMELY overdue (it has been 2,750 games since the last 250x or higher was seen.)`): null;
+				(crashes.seen(25000, '>=') == 3000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 250x is EXTREMELY overdue (it has been 3,000 games since the last 250x or higher was seen.)`): null;
+				(crashes.seen(25000, '>=') == 3250) ? bot.say(`Gambletron Automated Chase Alert (GACA): 250x is INSANELY overdue (it has been 3,250 games since the last 250x or higher was seen.)`): null;
+				(crashes.seen(25000, '>=') == 3500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 250x is INSANELY overdue (it has been 3,500 games since the last 250x or higher was seen.)`): null;
+				(crashes.seen(25000, '>=') == 3750) ? bot.say(`Gambletron Automated Chase Alert (GACA): 250x is INSANELY overdue (it has been 3,750 games since the last 250x or higher was seen.)`): null;
+				(crashes.seen(25000, '>=') == 4000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 250x is STUPIDLY overdue (it has been 4,000 games since the last 250x or higher was seen.)`): null;
+
+			}
+
+			if (crashes.seen(50000, '>=') != false) {
+				// a 100x is in our history, we can now comment on it
+				(crashes.seen(50000, '>=') == 1000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 500x is slightly overdue (it has been 1000 games since the last 500x or higher was seen.)`): null;
+				(crashes.seen(50000, '>=') == 1500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 500x is slightly overdue (it has been 1,500 games since the last 500x or higher was seen.)`): null;
+				(crashes.seen(50000, '>=') == 2000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 500x is moderately overdue (it has been 2,000 games since the last 500x or higher was seen.)`): null;
+				(crashes.seen(50000, '>=') == 2500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 500x is moderately overdue (it has been 2,500 games since the last 500x or higher was seen.)`): null;
+				(crashes.seen(50000, '>=') == 3000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 500x is highly overdue (it has been 3,000 games since the last 500x or higher was seen.)`): null;
+				(crashes.seen(50000, '>=') == 3500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 500x is highly overdue (it has been 3,500 games since the last 500x or higher was seen.)`): null;
+				(crashes.seen(50000, '>=') == 4000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 500x is very highly overdue (it has been 4,000 games since the last 500x or higher was seen.)`): null;
+				(crashes.seen(50000, '>=') == 4500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 500x is very highly overdue (it has been 4,500 games since the last 500x or higher was seen.)`): null;
+				(crashes.seen(50000, '>=') == 5000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 500x is EXTREMELY overdue (it has been 5,000 games since the last 500x or higher was seen.)`): null;
+				(crashes.seen(50000, '>=') == 5500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 500x is EXTREMELY overdue (it has been 5,500 games since the last 500x or higher was seen.)`): null;
+				(crashes.seen(50000, '>=') == 6000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 500x is EXTREMELY overdue (it has been 6,000 games since the last 500x or higher was seen.)`): null;
+				(crashes.seen(50000, '>=') == 6500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 500x is INSANELY overdue (it has been 6,500 games since the last 500x or higher was seen.)`): null;
+				(crashes.seen(50000, '>=') == 7000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 500x is INSANELY overdue (it has been 7,000 games since the last 500x or higher was seen.)`): null;
+				(crashes.seen(50000, '>=') == 7500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 500x is INSANELY overdue (it has been 7,500 games since the last 500x or higher was seen.)`): null;
+				(crashes.seen(50000, '>=') == 8000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 500x is STUPIDLY overdue (it has been 8,000 games since the last 500x or higher was seen.)`): null;
+
+			}
+
+			if (crashes.seen(100000, '>=') != false) {
+				// a 1000x is in our history, we can now comment on it
+				(crashes.seen(100000, '>=') == 1000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is nearly due (it has been 1,000 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 2000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is slightly overdue (it has been 2,000 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 2500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is slightly overdue (it has been 2,500 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 3000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is slightly overdue (it has been 3,000 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 3500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is slightly overdue (it has been 3,500 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 4000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is moderately overdue (it has been 4,000 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 4500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is moderately overdue (it has been 4,500 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 5000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is moderately overdue (it has been 5,000 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 5500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is moderately overdue (it has been 5,500 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 6000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is highly overdue (it has been 6,000 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 6500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is highly overdue (it has been 6,500 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 7000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is highly overdue (it has been 7,000 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 7500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is highly overdue (it has been 7,500 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 8000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is very highly overdue (it has been 8,000 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 8500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is very highly overdue (it has been 8,500 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 9000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is very highly overdue (it has been 9,000 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 9500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is very highly overdue (it has been 9,500 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 10000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is EXTREMELY overdue (it has been 10,000 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 10250) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is EXTREMELY overdue (it has been 10,250 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 10500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is EXTREMELY overdue (it has been 10,500 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 10750) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is EXTREMELY overdue (it has been 10,750 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 11000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is EXTREMELY overdue (it has been 11,000 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 11250) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is EXTREMELY overdue (it has been 11,250 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 11500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is EXTREMELY overdue (it has been 11,500 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 11750) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is EXTREMELY overdue (it has been 11,750 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 12000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is EXTREMELY overdue (it has been 12,000 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 12100) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is EXTREMELY overdue (it has been 12,100 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 12200) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is EXTREMELY overdue (it has been 12,200 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 12300) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is EXTREMELY overdue (it has been 12,300 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 12400) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is EXTREMELY overdue (it has been 12,400 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 12500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is EXTREMELY overdue (it has been 12,500 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 12600) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is EXTREMELY overdue (it has been 12,600 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 12700) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is EXTREMELY overdue (it has been 12,700 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 12800) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is EXTREMELY overdue (it has been 12,800 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 12900) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is EXTREMELY overdue (it has been 12,900 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 13000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 13,000 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 13100) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 13,100 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 13200) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 13,200 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 13300) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 13,300 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 13400) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 13,400 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 13500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 13,500 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 13600) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 13,600 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 13700) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 13,700 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 13800) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 13,800 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 13900) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 13,900 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 14000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 14,000 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 14100) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 14,100 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 14200) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 14,200 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 14300) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 14,300 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 14400) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 14,400 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 14500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 14,500 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 14600) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 14,600 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 14700) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 14,700 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 14800) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 14,800 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 14900) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 14,900 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 15000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 15,000 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 15100) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 15,100 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 15200) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 15,200 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 15300) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 15,300 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 15400) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 15,400 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 15500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 15,500 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 15600) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 15,600 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 15700) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 15,700 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 15800) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 15,800 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 15900) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 15,900 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 16000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 16,000 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 16100) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 16,100 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 16200) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 16,200 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 16300) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 16,300 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 16400) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 16,400 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 16500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 16,500 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 16600) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 16,600 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 16700) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 16,700 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 16800) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 16,800 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 16900) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 16,900 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 17000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 17,000 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 17100) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 17,100 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 17200) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 17,200 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 17300) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 17,300 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 17400) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 17,400 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 17500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 17,500 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 17600) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 17,600 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 17700) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 17,700 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 17800) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 17,800 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 17900) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is INSANELY overdue (it has been 17,900 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 18000) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is STUPIDLY overdue (it has been 18,000 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 18100) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is STUPIDLY overdue (it has been 18,100 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 18200) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is STUPIDLY overdue (it has been 18,200 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 18300) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is STUPIDLY overdue (it has been 18,300 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 18400) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is STUPIDLY overdue (it has been 18,400 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 18500) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is STUPIDLY overdue (it has been 18,500 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 18600) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is STUPIDLY overdue (it has been 18,600 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 18700) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is STUPIDLY overdue (it has been 18,700 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 18800) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is STUPIDLY overdue (it has been 18,800 games since the last 1000x or higher was seen.)`): null;
+				(crashes.seen(100000, '>=') == 18900) ? bot.say(`Gambletron Automated Chase Alert (GACA): 1000x (NYAN) is STUPIDLY overdue (it has been 18,900 games since the last 1000x or higher was seen.)`): null;
+
+			}
+
+			/* FUTURE ALERTS */
+
+
+
+		} // End of alerts
+
+	}
