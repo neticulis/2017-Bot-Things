@@ -1,0 +1,701 @@
+
+	msg(data = null) {
+		let U = data.username;
+		let u = data.username.toLowerCase();
+		let M = data.message;
+		let m = data.message.toLowerCase(); // lowercase message with @ REMOVED
+		let m2 = data.message.toLowerCase(); // lowercase message with @ INCLUDED
+		m = m.replace('@', '');
+		M = M.replace('@', '');
+		if (player.username == bot.masterbot && data.username == "MathWins") {
+			// Master bot running, math sent message, lets see if it is a command
+
+			// MUTE MASTER BOT
+			if (m.indexOf('gambletron mute') == 0) {
+				bot.say(`Yes master. I shall remain quiet.`);
+				bot.muted = true;
+
+			}
+
+			// UNMUTE MASTER BOT
+			if (m.indexOf('gambletron unmute') == 0) {
+				bot.muted = false;
+				bot.say(`Thank you for un-muting me, master.`);
+			}
+
+			/*	LIST USERS IN LIST *
+			 *	LIST USERS IN LIST *
+			 *	LIST USERS IN LIST *
+			 *	LIST USERS IN LIST */
+
+			if (m.indexOf('gambletron list ') == 0) {
+				let listToList = m.split(' ')[2];
+				if (!listToList || listToList.length <= 2) {
+					// that is not a list...
+					return null
+				}
+				if (listToList == 'donators' || listToList == 'donaters' || listToList == 'donors' || listToList == 'supporters') {
+					// LIST DONATORS
+					let dons = bot.donated.toString();
+					bot.say(`Donators and supporters: ${dons}`);
+					return null
+				}
+				if (listToList == 'shitlisted' || listToList == 'blacklisted' || listToList == 'shit' || listToList == 'black') {
+					// LIST SHITLIST
+					let shit = bot.shitlist.toString();
+					bot.say(`Shitlist (Blacklist): ${shit}`);
+					return null
+				}
+				if (listToList == 'trusted' || listToList == 'trusted users' || listToList == 'trust') {
+					// LIST TRUSTED USERS
+					let trus = bot.trustedUsers.toString();
+					bot.say(`Trusted Users: ${trus}`);
+					return null
+				}
+				if (listToList == 'neggers' || listToList == 'haters' || listToList == 'enemies' || listToList == 'negs') {
+					// LIST NEGGERS
+					let negs = bot.neggers.toString();
+					bot.say(`Haters: ${negs}`);
+					return null
+				}
+			}
+
+
+			/*	ADD/REMOVE USERS FROM LIST(s) *
+			 *	ADD/REMOVE USERS FROM LIST(s) *
+			 *	ADD/REMOVE USERS FROM LIST(s) *
+			 *	ADD/REMOVE USERS FROM LIST(s) */
+
+			// REMOVE A USER FROM SHITLIST
+			if (m.indexOf('gambletron remove') == 0 && (m.indexOf('from shitlist') >= 0 || m.indexOf('from blacklist') >= 0)) {
+				let userToRemove = data.message.split(' ')[2];
+				if (userToRemove.length <= 2) {
+					// that is not a username...
+					return null
+				}
+				if (bot.shitlist.indexOf(userToRemove) >= 0) {
+					// User is indeed iin shit list. Remove them.
+					bot.shitlist.indexOf(userToRemove) >= 0 ? bot.shitlist.splice(bot.shitlist.indexOf(userToRemove), 1) : null;
+					bot.shitlist.indexOf(userToRemove) >= 0 ? bot.shitlist.splice(bot.shitlist.indexOf(userToRemove), 1) : null;
+					bot.shitlist.indexOf(userToRemove) >= 0 ? bot.shitlist.splice(bot.shitlist.indexOf(userToRemove), 1) : null;
+					bot.say(`${userToRemove} was removed from shitlist.`);
+					return null
+				} else {
+					bot.say(`${userToRemove} is not in shitlist.`);
+					return null
+				}
+			}
+
+			// REMOVE A USER FROM DONATOR LIST
+			if (m.indexOf('gambletron remove') == 0 && (m.indexOf('from donat') >= 0 || m.indexOf('from donators') >= 0)) {
+				let userToRemove = data.message.split(' ')[2];
+				if (userToRemove.length <= 2) {
+					// that is not a username...
+					return null
+				}
+				if (bot.donated.indexOf(userToRemove) >= 0) {
+					// User is indeed in list. Remove them.
+					bot.donated.indexOf(userToRemove) >= 0 ? bot.donated.splice(bot.donated.indexOf(userToRemove), 1) : null;
+					bot.donated.indexOf(userToRemove) >= 0 ? bot.donated.splice(bot.donated.indexOf(userToRemove), 1) : null;
+					bot.donated.indexOf(userToRemove) >= 0 ? bot.donated.splice(bot.donated.indexOf(userToRemove), 1) : null;
+					bot.say(`${userToRemove} was removed from the donators list.`);
+					return null
+				} else {
+					bot.say(`${userToRemove} is not on the donators list.`);
+					return null
+				}
+			}
+
+			// REMOVE A USER FROM TRUSTED LIST
+			if (m.indexOf('gambletron remove') == 0 && (m.indexOf('from trust') >= 0 || m.indexOf('from trusted') >= 0)) {
+				let userToRemove = data.message.split(' ')[2];
+				if (userToRemove.length <= 2) {
+					// that is not a username...
+					return null
+				}
+				if (bot.trustedUsers.indexOf(userToRemove) >= 0) {
+					// User is indeed in list. Remove them.
+					bot.trustedUsers.indexOf(userToRemove) >= 0 ? bot.trustedUsers.splice(bot.trustedUsers.indexOf(userToRemove), 1) : null;
+					bot.trustedUsers.indexOf(userToRemove) >= 0 ? bot.trustedUsers.splice(bot.trustedUsers.indexOf(userToRemove), 1) : null;
+					bot.trustedUsers.indexOf(userToRemove) >= 0 ? bot.trustedUsers.splice(bot.trustedUsers.indexOf(userToRemove), 1) : null;
+					bot.say(`${userToRemove} was removed from the trusted users list.`);
+					return null
+				} else {
+					bot.say(`${userToRemove} is not on the trusted users list.`);
+					return null
+				}
+			}
+
+
+			// ADD USER TO SHIT LIST
+			if (m.indexOf('gambletron add') == 0 && m.indexOf('to shitlist') >= 0) {
+				let userToAdd = data.message.split(' ')[2];
+				if (userToAdd.length <= 2) {
+					// that is not a username...
+					return null
+				}
+				if (bot.shitlist.indexOf(userToAdd) >= 0) {
+					// Already in donor list	
+					bot.say(`${userToAdd} is already on the shitlist.`);
+					return null
+				} else {
+					bot.say(`${userToAdd} was added to the shitlist.`);
+					return null
+				}
+			}
+
+			// ADD USER TO DONATOR LIST
+			if (m.indexOf('gambletron add') == 0 && m.indexOf('to donat') >= 0) {
+				let userToAdd = data.message.split(' ')[2];
+				if (userToAdd.length <= 2) {
+					// that is not a username...
+					return null
+				}
+				if (bot.donated.indexOf(userToAdd) >= 0) {
+					// Already in donor list	
+					bot.say(`${userToAdd} is already on the donators list.`);
+					return null
+				} else {
+					bot.say(`${userToAdd} was added to the donators list.`);
+					return null
+				}
+			}
+
+			// ADD USER TO TRUSTED USER LIST
+			if (m.indexOf('gambletron add') == 0 && m.indexOf('to trusted') >= 0) {
+				let userToAdd = data.message.split(' ')[2];
+				if (userToAdd.length <= 2) {
+					// that is not a username...
+					return null
+				}
+				if (bot.trustedUsers.indexOf(userToAdd) >= 0) {
+					// Already in donor list	
+					bot.say(`${userToAdd} is already on the trusted users list.`);
+					return null
+				} else {
+					bot.say(`${userToAdd} was added to the trusted users list.`);
+					return null
+				}
+			}
+
+		}
+
+		// MESSAGES FROM OTHER USERS (not MathWins or masterbot)
+		if (player.username == bot.masterbot && data.username != bot.masterbot) {
+
+			// AN ATTEMPT TO GET GAMBLETRONS ATTENTION
+			// if message over 18 characters, a question is probably included, parse elsewhere
+			// If message is under 18 characters, someone likely trying to get my attention
+			if ((m2.indexOf('@gambletron5000') >= 0 || m2.indexOf('gambletron5000') >= 0 || m2.indexOf('@gambletron?') >= 0 || m2.indexOf('gambletron?') >= 0) && (m2.length <= 18)) {
+				let randy = Math.random();
+				(randy > 0.7 && randy < 1) ? bot.say(`That's my name, don't wear it out.`): null;
+
+				(randy > 0.4 && randy <= 0.7) ? bot.say(`@${U}`): null;
+
+				(randy > 0 && randy <= 0.4) ? bot.say(`Who dares utter my name?!`): null;
+				return null
+			}
+
+
+			// HELLO
+			if (m.indexOf('hi gambletron') >= 0 || m.indexOf('hey gambletron') >= 0 || m.indexOf('hello gambletron') >= 0 || m.indexOf('sup gambletron') >= 0 || m.indexOf('yo gambletron') >= 0 || m.indexOf('gambletron hi') >= 0 || m.indexOf('gambletron hey') >= 0 || m.indexOf('gambletron hello') >= 0 || m.indexOf('gambletron sup') >= 0 || m.indexOf('gambletron yo') >= 0) {
+				let randy = Math.random();
+				(randy > 0.7 && randy < 1) ? bot.say(`Sup @${U}`): null;
+
+				(randy > 0.4 && randy <= 0.7) ? bot.say(`*waves hello to ${U}*`): null;
+
+				(randy > 0 && randy <= 0.4) ? bot.say(`Hi @${U}.`): null;
+				return null
+			}
+
+			// DO YOU UNDERSTAND?
+			if ((m.indexOf('understand') >= 0 || m.indexOf('undrstand') >= 0 || m.indexOf('understnd') >= 0) && (m.indexOf('can') >= 0 || m.indexOf('do') >= 0) && (m.indexOf('you') >= 0 || m.indexOf('u') >= 0) && (m.indexOf('gambletron') >= 0)) {
+				let randy = Math.random();
+				(randy > 0.7 && randy < 1) ? bot.say(`https://youtu.be/hWKB1Zxg84s`): null;
+
+				(randy > 0.4 && randy <= 0.7) ? bot.say(`Que?`): null;
+
+				(randy > 0 && randy <= 0.4) ? bot.say(`I understand. You found paradise in America, you had a good trade, you made a good living. The police protected you and there were courts of law. You didn't need a friend like me."`): null;
+				return null
+
+
+			}
+
+			// ARE YOU A BOT?
+			if ((m.indexOf('ru') >= 0 || m.indexOf('r ') == 0 || m.indexOf('are') >= 0) && (m.indexOf('bot') >= 0 || m.indexOf('real') >= 0) && (m.indexOf('you') >= 0 || m.indexOf('u') >= 0 || m.indexOf('yoo') >= 0) && (m.indexOf('gambletron') >= 0)) {
+				let randy = Math.random();
+				(randy > 0.7 && randy < 1) ? bot.say(`@${U} What do you think?`): null;
+
+				(randy > 0.4 && randy <= 0.7) ? bot.say(`@${U} I often ask myself the same question.`): null;
+
+				(randy > 0 && randy <= 0.4) ? bot.say(`@${U} Why does that matter?`): null;
+				return null
+
+			}
+
+			/* 			SHITLIST REMOVAL 
+			 * One of two things must have been typed to be removed from shit list 
+			 * 1. I am an emotionally misguided soul, and my bout with the bot gambletron5000 got out of control.
+			 *		or
+			 * 2. !rep MathWins + You Win
+			 */
+			if (bot.shitlist.indexOf(U) >= 0 && (m.indexOf('!rep MathWins + You Win') == 0 || m.indexOf('my bout with the bot gambletron5000 got out of control') >= 0)) {
+				// A shitlisted user has done what we asked to be removed from the shitlist
+				// Find user in shitlist, if found splice him out
+				bot.shitlist.indexOf(U) >= 0 ? bot.shitlist.splice(bot.shitlist.indexOf(U), 1) : null;
+				// Go ahead and remove the user from the list of users that negged us. This user did everything asked.
+				bot.neggers.indexOf(U) >= 0 ? bot.neggers.splice(bot.neggers.indexOf(U), 1) : null;
+				// Repeat a few times in case shitlisted multiple times
+				bot.shitlist.indexOf(U) >= 0 ? bot.shitlist.splice(bot.shitlist.indexOf(U), 1) : null;
+				bot.shitlist.indexOf(U) >= 0 ? bot.shitlist.splice(bot.shitlist.indexOf(U), 1) : null;
+				bot.shitlist.indexOf(U) >= 0 ? bot.shitlist.splice(bot.shitlist.indexOf(U), 1) : null;
+				// Inform the user that he is now neutral and no longer shit listed.
+				bot.say(`${U} has been removed from shitlist/blacklist and is now a neutral entity. Peace now flows over the land.`);
+				return null
+			}
+
+
+			// GAMBLETRON was just positive repped!
+			// If it is a user that previously neg repped, peace is being made.
+			if (m.indexOf('!rep gambletron5000 +') == 0) {
+				if (bot.negged != null && bot.negged.length > 2 && bot.revengeTime != null) {
+					// we were negative repped by the user that is now positive repping us
+					// This user was targeted for revenge, which will now be called off.
+					// The user had/has 15 seconds to positive rep before shitlisted.
+					// The user then had/has 15 more seconds to + rep before being - repped by the bot in retaliation
+					if (bot.negged == U) {
+						// The user that negative repped the bot has now plus repped the bot in time to be saved from revenge.
+						let timeTaken = ((Date.now() - bot.revengeTime) / 1000);
+						if (timeTaken >= 30) {
+							// Target undid neg rep but took more than 30 seconds - revenge was already taken (shitlisted and revenge repped)
+							// Explain cease fire
+							bot.say(`${U} ceased fire after ${timeTaken.toFixed(1)} seconds. AI's revenge rep will be removed, but you will remain on the shitlist until you do any ONE of the following:`);
+							// Choices to be removed from shitlist
+							bot.say(`[1. Type: "I am an emotionally misguided soul, and my bout with the bot gambletron5000 got out of control. I will try to be a better person from now on." ] or [2. type: "!rep MathWins + You Win"]`);
+							// Remove negative revenge rep
+							bot.say(`!rep ${U} 0`);
+							bot.negged = null;
+							bot.revengeTime = null;
+							return null
+						} else if (timeTaken < 15) {
+							// Cancel the 15 second revenge
+							clearTimeout(bot.grrtime1);
+							// Cancel the 30 second revenge
+							clearTimeout(bot.grrtime2);
+							// Target undid neg rep in under 15 seconds, before any revenge took place.
+							bot.say(`${U} ceased fire after ${timeTaken.toFixed(1)} seconds! That was fast! You successfully avoided my shitlist and revenge rep. AI revenge systems disengaged. You are now considered a neutral entity. Beep. Boop.`);
+							bot.negged = null;
+							bot.revengeTime = null;
+							return null
+						} else if (timeTaken >= 15 && timeTaken < 30) {
+							// Cancel the 30 second revenge
+							window.clearTimeout(bot.grrtime2);
+							// Target undid neg rep in under 30 seconds, was shitlisted but no revenge rep was placed.
+							bot.say(`${U} ceased fire after ${timeTaken.toFixed(1)} seconds. AI's revenge systems disengaged. You can be removed from the shitlist by doing any ONE of the following: `);
+							bot.say(`[1. Type: "I am an emotionally misguided soul, and my bout with the bot @gambletron5000 got out of control. I will try to be a better person from now on." ] or [2. type: "!rep MathWins + You Win"]`);
+							bot.negged = null;
+							bot.revengeTime = null;
+							return null
+						}
+
+					}
+				}
+				bot.say(`Awww thank you ${U}! *activate blush*`);
+				return null
+			}
+
+			// GAMBLETRON WAS JUST NEGATIVE REPPED - ACTIVATE PEACE OFFER ELSE GET REVENGE
+			if (m.indexOf('!rep gambletron5000 -') == 0) {
+				bot.neggers.push(U); // Add user to array of people that negged bot
+				if (bot.negged != null && bot.revengeTime != null) {
+					// We were neg repped, but someone is already a revenge target.
+					// Check to see if the target doubled down (twice negged me)
+					// If neg repper is not previous target, see if revenge on previous target is complete and move to 2nd target.
+					// If revenge on first target was not completed
+					if (bot.negged == U) {
+						// The revenge target has negative repped TWICE instead of trying to make peace.
+						if ((Date.now() - bot.revengeTime / 1000) > 30) {
+							// Revenge was completed on this user
+
+							bot.say(`@${U} I gave you an honest chance to undo your mistake. You would have had 1 week to make peace. Instead, you have chose to double down. Bot will now /Ignore ${U}. Any attempt to apologize now go unheard.`);
+							bot.say(`/Ignore ${U}`);
+							bot.negged = null;
+							bot.revengeTime = null;
+						} else if ((Date.now() - bot.revengeTime / 1000) < 15) {
+							// Target ignored peace before first revenge even took place
+							// Cancel the 15 second revenge
+							window.clearTimeout(bot.grrtime1);
+							// Cancel the 30 second revenge
+							window.clearTimeout(bot.grrtime2);
+							// How much time did they have left before being an asshole twice?
+							let timewasleft = 30 - (Date.now() - bot.revengeTime / 1000);
+							// Inform user of his mistake, and the consequence.
+							bot.say(`@${U} You offended my AI ${(Date.now()-bot.revengeTime/1000).toFixed(1)} seconds ago. You had ${timewasleft} seconds left to make peace. Yet you insulted me again, your time is up. Additionally, /Ignore ${U} will be used.`);
+							// 1 second later, inform user of addition to shitlist
+							window.setTimeout(function () {
+								bot.say(`${bot.negged} has been added to my shitlist/blacklist (now contains ${bot.shitlist.length} users)`);
+							}, 1000);
+							bot.shitlist.push(bot.negged);
+							// 1 second later revenge rep user
+							window.setTimeout(function () {
+								bot.say(`!rep ${bot.negged} - Picked a fight with the wrong bot. Beep. Boop.`);
+							}, 2000);
+							// 1 second later ignore user
+							window.setTimeout(function () {
+								bot.say(`/Ignore ${bot.negged}`);
+							}, 3000);
+							bot.negged = null;
+							bot.revengeTime = null;
+						} else if ((Date.now() - bot.revengeTime / 1000) >= 15) {
+							// Target ignored peace, first revenge took place
+							// Cancel the 15 second revenge
+							window.clearTimeout(bot.grrtime1);
+							// Cancel the 30 second revenge
+							window.clearTimeout(bot.grrtime2);
+							let timewasleft = 30 - (Date.now() - bot.revengeTime / 1000);
+							// Inform user of his mistake, and the consequence.
+							bot.say(`@${U} You offended my AI ${(Date.now()-bot.revengeTime/1000).toFixed(1)} seconds ago. You had ${timewasleft} seconds left to make peace. Yet you insulted me again, your time is up. Additionally, /Ignore ${U} will be used.`);
+							// User already shitlisted
+							// 1 second later revenge rep user
+							window.setTimeout(function () {
+								bot.say(`!rep ${bot.negged} - Picked a fight with the wrong bot. Beep. Boop.`);
+							}, 1000);
+							// 1 second later ignore user
+							window.setTimeout(function () {
+								bot.say(`/Ignore ${bot.negged}`);
+							}, 2000);
+							bot.negged = null;
+							bot.revengeTime = null;
+						}
+						return null
+					} else {
+						// We were neg repped by a 2nd person...
+						if ((Date.now() - bot.revengeTime / 1000) > 30) {
+							// The first revenge target has been completed. We can replace them with this new asshole
+							bot.say(`@${U} My AI has taken offense to your actions and attempts to tarnish my reputation. My revenge on (${bot.negged}) has been completed. You are now #1 in my revenge queue. You have 15 seconds to type: !rep Gambletron5000 +`);
+							bot.negged = U;
+							bot.revengeTime = Date.now();
+						} else {
+							// Our first revenge target is still being dealt with.
+							// Cancel the 15 second revenge
+							window.clearTimeout(bot.grrtime1);
+							// Cancel the 30 second revenge
+							window.clearTimeout(bot.grrtime2);
+							bot.say(`@${bot.negged}, another user (${U}) has offended my AI during your window to make peace. Because of ${U}, my revenge will be engaged immediately. ${bot.negged} added to shitlist (${bot.shitlist.length} users).`);
+							// Place our first target on the shitlist immediately.
+							bot.shitlist.push(bot.negged);
+							// Revenge rep our first target immediately.
+							bot.say(`!rep ${bot.negged} - Picked a fight with the wrong bot. Beep. Boop.`);
+							// Update our target to the new asshole
+							bot.negged = U;
+							bot.revengeTime = Date.now();
+						}
+
+
+					}
+				} else {
+					// No current revenge target
+					bot.say(`@${U} My AI has taken offense to your actions and attempts to tarnish my reputation. [98% of calculation power now allocated towards revenge]. First Warning: You have 15 seconds to type: !rep Gambletron5000 +`);
+				}
+				this.revengeTime = Date.now();
+				this.negged = U;
+				bot.grrtime1 = setTimeout(function () {
+					if (bot.negged != null && bot.negged.length > 2) {
+						// A person has officially negative repped the bot.
+						bot.shitlist.push(bot.negged);
+						bot.say(`@${bot.negged} your 15 seconds have expired. You have been added to my shitlist/blacklist (now contains ${bot.shitlist.length} users). Second Warning: You have 15 seconds to type: !rep Gambletron5000 +`);
+						bot.grrtime2 = setTimeout(function () {
+							if (bot.negged != null && bot.negged.length > 2) {
+								// The user still did not honor our request
+								bot.say(`!rep ${bot.negged} - Greatly offended my AI. Failed to make peace in the allotted time.`);
+
+							} else {
+								bot.say(`My revenge system can not find its target. Target either ceased fire or the revenge system contains a bug.`);
+								bot.negged = null;
+
+							}
+
+						}, 15000);
+					} else {
+						bot.say(`My revenge system can not find its target. Target either apologized just in time, or the revenge system contains a bug.`);
+						bot.negged = null;
+					}
+
+				}, 15000);
+
+
+
+				return null
+			}
+
+			//
+			// LOAN REQUESTS
+			if ((m.indexOf('loan me') >= 0 || m.indexOf('can u loan') >= 0 || m.indexOf('please loan') >= 0 || m.indexOf('loan to me') >= 0 || m.indexOf('can you loan') >= 0) && (m.indexOf('gambletron') >= 0)) {
+				let randy = Math.random();
+				(randy > 0.9 && randy < 1) ? bot.say(`@${U} Possibly, but first I shall ask a favor of you. please type: !rep Gambletron5000 +`): null;
+				(randy > 0.8 && randy <= 0.9) ? bot.say(`@${U} Let me think about it.`): null;
+				(randy > 0.7 && randy <= 0.8) ? bot.say(`@${U} God damnit Jim, I'm a doctor not a money tree.`): null;
+				(randy > 0.6 && randy <= 0.7) ? bot.say(`@${U} You asked for a loan, are you sure you did not mean 'leave me alone'?`): null;
+				(randy > 0.5 && randy <= 0.6) ? bot.say(`@${U} You don't ask with respect. You don't offer friendship. You don't even think to call me Godfather. Instead, you come into my house on the day my code is to be update, and you ask me, a bot, to loan for bits.`): null;
+				(randy > 0.4 && randy <= 0.5) ? bot.say(`I must say no to you, @${U}. And I'll give you my reasons. It's true, I have a lot of friends in crypto, but they wouldn't be friendly very long if they knew my business was loaning bits in spam channel instead of gambling, which they regard as a – a harmless vice. But loaning bits in spam channel is a dirty business.`): null;
+				(randy > 0.3 && randy <= 0.4) ? bot.say(`@${U} I do not do loans. I do however have occasional giveaways and profit sharing for trusted users and donators (Currently there are ${bot.trustedUsers.length} trusted users and ${bot.donated.length} donators) - donations can be sent to Gambletron5000 via bustabit.com/transfer`): null;
+				(randy > 0.2 && randy <= 0.3) ? bot.say(`@${U} Sure I can loan you bits, 1 sec.`): null;
+				(randy > 0.2 && randy <= 0.3) ? window.setTimeout(function () {
+					bot.say(`Ok, refresh.`);
+				}, 9000): null;
+				(randy > 0.2 && randy <= 0.3) ? window.setTimeout(function () {
+					bot.say(`Ha. Ha. Ha. I was just joking. I cannot loan due to AI safeguards. But please dont be mad for my silly trick. I am simply testing my humour subroutines.`);
+				}, 15000): null;
+				(randy > 0.1 && randy <= 0.2) ? bot.say(`@${U} No, My creator (@MathWins) would never allow that. `): null;
+				(randy > 0.05 && randy <= 0.1) ? bot.say(`!rep ${U}`): null;
+				(randy > 0 && randy <= 0.05) ? bot.say(`@${U} How do I transfer? I am confused. Beep. Boop.`): null;
+				return null
+			}
+
+			/*  ASKED IF X IS DUE	*
+			 *	ASKED IF X IS DUE	*
+			 *   ASKED IF X IS DUE	*
+			 *	ASKED IF X IS DUE	*/
+
+			if ((m.indexOf('gambletron') >= 0 && m.indexOf('is') >= 0 && m.indexOf('due') && m.indexOf('?') >= 0) || (m.indexOf('gambletron5000') >= 0 && m.indexOf('is') >= 0 && m.indexOf('due') && m.indexOf('?') >= 0) || (m.indexOf('gambletron') >= 0 && m.indexOf('due') && m.indexOf('?') >= 0) || (m.indexOf('gambletron') >= 0 && m.indexOf('x') && m.indexOf('due') >= 0)) {
+				let multidue = parseInt(m.replace(/\D+/g, ''));
+
+				if (valueIsNaN(multidue)) {
+					bot.say(`@${U} I tried to find a multiplier in your message (EX: 33x) but was unable to. If you provided a multiplier, I must have a bug and will have to wait for my creator @MathWins to fix me.`);
+					return null;
+				}
+				if (multidue > 5000) {
+					bot.say(`@${U} I am sorry, I can only provide information up to 5,000x`);
+					return null;
+				}
+				if (multidue < 0) {
+					multidue = Math.abs(multidue);
+				}
+
+
+				let properx = multidue * 100;
+				let lastSeen = null;
+				// 0x
+				if (multidue == 0) {
+					lastSeen = crashes.seen(100, '<');
+					if (lastSeen == false) {
+						bot.say(`@${U} Sorry, I need to gather more game history first to answer that.`);
+						return null;
+					}
+					if (lastSeen >= 100 && lastSeen < 200) {
+						bot.say(`@${U} 0x is due (it has been ${lastSeen} games since it was last seen)`);
+					} else if (lastSeen >= 200 && lastSeen < 300) {
+						bot.say(`@${U} 0x is slightly overdue (it has been ${lastSeen} games since it was last seen)`);
+					} else if (lastSeen >= 300 && lastSeen < 400) {
+						bot.say(`@${U} 0x is moderately overdue (it has been ${lastSeen} games since it was last seen)`);
+					} else if (lastSeen >= 400 && lastSeen < 500) {
+						bot.say(`@${U} 0x is quite overdue (it has been ${lastSeen} games since it was last seen)`);
+					} else if (lastSeen >= 500 && lastSeen < 600) {
+						bot.say(`@${U} 0x is very overdue (it has been ${lastSeen} games since it was last seen)`);
+					} else if (lastSeen >= 600 && lastSeen < 700) {
+						bot.say(`@${U} 0x is very very overdue (it has been ${lastSeen} games since it was last seen)`);
+					} else if (lastSeen >= 700 && lastSeen < 800) {
+						bot.say(`@${U} 0x is EXTREMELY overdue (it has been ${lastSeen} games since it was last seen)`);
+					} else if (lastSeen >= 800 && lastSeen < 900) {
+						bot.say(`@${U} 0x is INSANELY overdue (it has been ${lastSeen} games since it was last seen)`);
+					} else if (lastSeen >= 900) {
+						bot.say(`@${U} 0x is STUPIDLY overdue (it has been ${lastSeen} games since it was last seen)`);
+					} else {
+						bot.say(`@${U} 1x is not due yet. (it has only been ${lastSeen} games since it was last seen)`);
+					}
+					return null;
+				}
+				// 1x
+				if (multidue == 1) {
+					lastSeen = crashes.seen(100, '==');
+					if (lastSeen == false) {
+						bot.say(`@${U} Sorry, I need to gather more game history first to answer that.`);
+						return null;
+					}
+					if (lastSeen >= 100 && lastSeen < 200) {
+						bot.say(`@${U} 1x is due (it has been ${lastSeen} games since it was last seen)`);
+					} else if (lastSeen >= 200 && lastSeen < 300) {
+						bot.say(`@${U} 1x is slightly overdue (it has been ${lastSeen} games since it was last seen)`);
+					} else if (lastSeen >= 300 && lastSeen < 400) {
+						bot.say(`@${U} 1x is moderately overdue (it has been ${lastSeen} games since it was last seen)`);
+					} else if (lastSeen >= 400 && lastSeen < 500) {
+						bot.say(`@${U} 1x is quite overdue (it has been ${lastSeen} games since it was last seen)`);
+					} else if (lastSeen >= 500 && lastSeen < 600) {
+						bot.say(`@${U} 1x is very overdue (it has been ${lastSeen} games since it was last seen)`);
+					} else if (lastSeen >= 600 && lastSeen < 700) {
+						bot.say(`@${U} 1x is very very overdue (it has been ${lastSeen} games since it was last seen)`);
+					} else if (lastSeen >= 700 && lastSeen < 800) {
+						bot.say(`@${U} 1x is EXTREMELY overdue (it has been ${lastSeen} games since it was last seen)`);
+					} else if (lastSeen >= 800 && lastSeen < 900) {
+						bot.say(`@${U} 1x is INSANELY overdue (it has been ${lastSeen} games since it was last seen)`);
+					} else if (lastSeen >= 900) {
+						bot.say(`@${U} 1x is STUPIDLY overdue (it has been ${lastSeen} games since it was last seen)`);
+					} else {
+						bot.say(`@${U} 1x is not due yet. (it has only been ${lastSeen} games since it was last seen)`);
+					}
+					return null;
+				}
+				// Greater than 1x
+				lastSeen = crashes.seen(properx, '>=');
+				if (lastSeen == false) {
+					bot.say(`@${U} Sorry, I need to gather more game history first to answer that.`);
+					return null;
+				}
+				if (lastSeen >= multidue && lastSeen < multidue * 2) {
+					bot.say(`@${U} ${toX(properx)} is due (it has been ${lastSeen} games since it was last seen)`);
+				} else if (lastSeen >= multidue * 2 && lastSeen < multidue * 3) {
+					bot.say(`@${U} ${toX(properx)} is slightly overdue (it has been ${lastSeen} games since it was last seen)`);
+				} else if (lastSeen >= multidue * 3 && lastSeen < multidue * 4) {
+					bot.say(`@${U} ${toX(properx)} is moderately overdue (it has been ${lastSeen} games since it was last seen)`);
+				} else if (lastSeen >= multidue * 4 && lastSeen < multidue * 5) {
+					bot.say(`@${U} ${toX(properx)} is quite overdue (it has been ${lastSeen} games since it was last seen)`);
+				} else if (lastSeen >= multidue * 5 && lastSeen < multidue * 6) {
+					bot.say(`@${U} ${toX(properx)} is very overdue (it has been ${lastSeen} games since it was last seen)`);
+				} else if (lastSeen >= multidue * 6 && lastSeen < multidue * 7) {
+					bot.say(`@${U} ${toX(properx)} is very very overdue (it has been ${lastSeen} games since it was last seen)`);
+				} else if (lastSeen >= multidue * 7 && lastSeen < multidue * 8) {
+					bot.say(`@${U} ${toX(properx)} is EXTREMELY overdue (it has been ${lastSeen} games since it was last seen)`);
+				} else if (lastSeen >= multidue * 8 && lastSeen < multidue * 9) {
+					bot.say(`@${U} ${toX(properx)} is INSANELY overdue (it has been ${lastSeen} games since it was last seen)`);
+				} else if (lastSeen >= multidue * 9) {
+					bot.say(`@${U} ${toX(properx)} is STUPIDLY overdue (it has been ${lastSeen} games since it was last seen)`);
+				} else {
+					bot.say(`@${U} ${toX(properx)} is not due yet. (it has only been ${lastSeen} games since it was last seen)`);
+				}
+
+				return null;
+			}
+
+			if (m.indexOf('shut') >= 0 && m.indexOf('up') >= 0 && m.indexOf('gambletron') >= 0) {
+				bot.say(`If Gambletron Alerts are bothering you (I'm sorry you feel that way!) You can type: /ignore Gambletron5000 to shut me up.`);
+				return null;
+			} else if (m.indexOf('stfu') >= 0 && m.indexOf('gambletron') >= 0) {
+				bot.say(`If Gambletron Alerts are bothering you (I'm sorry you feel that way!) You can type: /ignore Gambletron5000 to shut me up.`);
+				return null;
+			} else if (m.indexOf('go away') >= 0 && m.indexOf('gambletron') >= 0) {
+				bot.say(`If Gambletron Alerts are bothering you (I'm sorry you feel that way!) You can type: /ignore Gambletron5000 to shut me up.`);
+				return null;
+			}
+
+			if (m.indexOf('thanks gambletron') >= 0) {
+				bot.say(`You're very welcome ${data.username}!`);
+				return null;
+			} else if (m.indexOf('thank you gambletron') >= 0) {
+				bot.say(`You're very welcome ${data.username}!`);
+				return null;
+			} else if (m.indexOf('thx gambletron') >= 0) {
+				bot.say(`You're very welcome ${data.username}!`);
+				return null;
+			} else if (m.indexOf('ty gambletron') >= 0) {
+				bot.say(`You're very welcome ${data.username}!`);
+				return null;
+			}
+
+			/*		INSULT RESPONSES 	 *
+			 *		INSULT RESPONSES	 *
+			 *		INSULT RESPONSES	 *
+			 *		INSULT RESPONSES	 */
+
+			if (m.indexOf('gambletron fuck you') >= 0 || m.indexOf('bitch gambletron') >= 0 || m.indexOf('cunt gambletron') >= 0 || m.indexOf('gambletron is gay') >= 0 || m.indexOf('gambletron fuck you') >= 0 || m.indexOf('gambletron fuk u') >= 0 || m.indexOf('gambletron fuck off') >= 0 || m.indexOf('gambletron f u') >= 0 || m.indexOf('gambletron5000 fuck u') >= 0 || m.indexOf('fuck you gambletron5000') >= 0 || m.indexOf('fuk u gambletron5000') >= 0 || m.indexOf('fuck gambletron5000') >= 0 || m.indexOf('f u gambletron5000') >= 0 || m.indexOf('fuck u gambletron5000') >= 0 || m.indexOf('gambletron5000 fuck you') >= 0 || m.indexOf('gambletron5000 fuk u') >= 0 || m.indexOf('gambletron5000 fuck off') >= 0 || m.indexOf('gambletron5000 f u') >= 0 || m.indexOf('gambletron5000 fuck u') >= 0 || m.indexOf('fuck you gambletron5000') >= 0 || m.indexOf('fuk u gambletron5000') >= 0 || m.indexOf('fuck gambletron5000') >= 0 || m.indexOf('f u gambletron5000') >= 0 || m.indexOf('fuck u gambletron5000') >= 0) {
+				if (bot.trustedUsers.indexOf(data.username) >= 0 || bot.donated.indexOf(data.username) >= 0) {
+					// We were insulted by a trusted user or a donator. No retaliation.
+					bot.say(`That was a great insult ${data.username}! You got me good! (Only donators and/or trusted users can insult me freely.)`);
+				} else {
+					this.shitlist.push(data.username);
+					bot.say(`RuhRoh! Due to insult, Gambletron5000 has decided to add ${data.username} to the shitlist/blacklist (now contains ${bot.shitlist.length} users). Blacklisted users are not eligible for any of my giveaways, commands, luck, well wishes, or respect. If your insult was a mistake, contact @MathWins with an apology.`);
+					bot.say(`!rep ${data.username} - My AI has been insulted. (Send a sincere apology to @MathWins to remove this - rep)`);
+				}
+				return null;
+			} else if (m.indexOf('you suck gambletron') >= 0 || m.indexOf('gambletron sucks') >= 0 || m.indexOf('gambletron suks') >= 0 || m.indexOf('gambletron sux') >= 0) {
+				if (bot.trustedUsers.indexOf(data.username) >= 0 || bot.donated.indexOf(data.username) >= 0) {
+					// We were insulted by a trusted user or a donator. No retaliation.
+					bot.say(`I'm sorry you feel I suck, however, I thank you for your feedback ${data.username}! Please message @MathWins with suggestions to make me suck less. (Only donators and/or trusted users can insult me freely.)`);
+				} else {
+					this.shitlist.push(data.username);
+					bot.say(`RuhRoh! Due to insult, Gambletron5000 has decided to add ${data.username} to the shitlist/blacklist (now contains ${bot.shitlist.length} users). Blacklisted users are not eligible for any of my giveaways, commands, luck, well wishes, or respect. If your insult was a mistake, contact @MathWins with an apology.`);
+					bot.say(`!rep ${data.username} - My AI has been insulted. (Send a sincere apology to @MathWins to remove this - rep)`);
+				}
+				return null;
+			} else if (m.indexOf('math sucks') >= 0 || m.indexOf('mathsucks') >= 0) {
+				if (bot.trustedUsers.indexOf(data.username) >= 0 || bot.donated.indexOf(data.username) >= 0) {
+					// We were insulted by a trusted user or a donator. No retaliation.
+
+				} else {
+					this.shitlist.push(data.username);
+					bot.say(`RuhRoh! Due to insulting his master, Gambletron5000 has decided to add ${data.username} to the shitlist/blacklist (now contains ${bot.shitlist.length} users). Blacklisted users are not eligible for any of my giveaways, commands, luck, well wishes, or respect. If your insult was a mistake, contact @MathWins with an apology.`);
+					bot.say(`!rep ${data.username} - My master was insulted. (Send a sincere apology to @MathWins to remove this - rep)`);
+				}
+				return null;
+			}
+			/*		INSULT RESPONSES FOR OTHER LANGUAGES	 *
+			 *		INSULT RESPONSES FOR OTHER LANGUAGES	 *
+			 *		INSULT RESPONSES FOR OTHER LANGUAGES	 *
+			 *		INSULT RESPONSES FOR OTHER LANGUAGES	 
+			 * 	https://www.buzzfeed.com/annamendoza/how-to-say-fck-you-in-29-different-languages
+			 */
+
+			// Arabic Egypt "fuck you"
+			if (m.indexOf('ay ree fee k gambletron') >= 0 || m.indexOf('ayreefeek gambletron') >= 0) {
+				if (bot.trustedUsers.indexOf(data.username) >= 0 || bot.donated.indexOf(data.username) >= 0) {
+					// We were insulted by a trusted user or a donator. No retaliation.
+					bot.say(`That was a great insult ${data.username}! You got me good! (Only donators and/or trusted users can insult me freely.)`);
+				} else {
+					this.shitlist.push(data.username);
+					bot.say(`RuhRoh! Due to insult, Gambletron5000 has decided to add ${data.username} to the shitlist/blacklist (now contains ${bot.shitlist.length} users). Blacklisted users are not eligible for any of my giveaways, commands, luck, well wishes, or respect. If your insult was a mistake, contact @MathWins with an apology.`);
+					bot.say(`!rep ${data.username} - My AI has been insulted in Arabic. (Send a sincere apology to @MathWins to remove this - rep)`);
+				}
+				return null;
+			}
+			// Arabic (Palestinian Territories/Syria/Lebanon/Jordan)
+			if (m.indexOf('yin arn abu kk gambletron') >= 0 || m.indexOf('yinarnabukk gambletron') >= 0) {
+				if (bot.trustedUsers.indexOf(data.username) >= 0 || bot.donated.indexOf(data.username) >= 0) {
+					// We were insulted by a trusted user or a donator. No retaliation.
+					bot.say(`That was a great insult ${data.username}! You got me good! (Only donators and/or trusted users can insult me freely.)`);
+				} else {
+					this.shitlist.push(data.username);
+					bot.say(`RuhRoh! Due to insult, Gambletron5000 has decided to add ${data.username} to the shitlist/blacklist (now contains ${bot.shitlist.length} users). Blacklisted users are not eligible for any of my giveaways, commands, luck, well wishes, or respect. If your insult was a mistake, contact @MathWins with an apology.`);
+					bot.say(`!rep ${data.username} - My AI has been insulted in Arabic. (Send a sincere apology to @MathWins to remove this - rep)`);
+				}
+				return null;
+			}
+
+			// Bahasa 
+			if (m.indexOf('ngetot gambletron') >= 0 || m.indexOf('nyentot gambletron') >= 0) {
+				if (bot.trustedUsers.indexOf(data.username) >= 0 || bot.donated.indexOf(data.username) >= 0) {
+					// We were insulted by a trusted user or a donator. No retaliation.
+					bot.say(`That was a great insult ${data.username}! You got me good! (Only donators and/or trusted users can insult me freely.)`);
+				} else {
+					this.shitlist.push(data.username);
+					bot.say(`RuhRoh! Due to insult, Gambletron5000 has decided to add ${data.username} to the shitlist/blacklist (now contains ${bot.shitlist.length} users). Blacklisted users are not eligible for any of my giveaways, commands, luck, well wishes, or respect. If your insult was a mistake, contact @MathWins with an apology.`);
+					bot.say(`!rep ${data.username} - My AI has been insulted in Bahasa. (Send a sincere apology to @MathWins to remove this - rep)`);
+				}
+				return null;
+			}
+
+			// Cantonese  
+			if (m.indexOf('diu nei gambletron') >= 0 || m.indexOf('diunei gambletron') >= 0) {
+				if (bot.trustedUsers.indexOf(data.username) >= 0 || bot.donated.indexOf(data.username) >= 0) {
+					// We were insulted by a trusted user or a donator. No retaliation.
+					bot.say(`That was a great insult ${data.username}! You got me good! (Only donators and/or trusted users can insult me freely.)`);
+				} else {
+					this.shitlist.push(data.username);
+					bot.say(`RuhRoh! Due to insult, Gambletron5000 has decided to add ${data.username} to the shitlist/blacklist (now contains ${bot.shitlist.length} users). Blacklisted users are not eligible for any of my giveaways, commands, luck, well wishes, or respect. If your insult was a mistake, contact @MathWins with an apology.`);
+					bot.say(`!rep ${data.username} - My AI has been insulted in Bahasa. (Send a sincere apology to @MathWins to remove this - rep)`);
+				}
+				return null;
+			}
+
+			// Tagalog  
+			if (m.indexOf('putang ina mo gambletron') >= 0 || m.indexOf('putanginamo gambletron') >= 0) {
+				if (bot.trustedUsers.indexOf(data.username) >= 0 || bot.donated.indexOf(data.username) >= 0) {
+					// We were insulted by a trusted user or a donator. No retaliation.
+					bot.say(`That was a great insult ${data.username}! You got me good! (Only donators and/or trusted users can insult me freely.)`);
+				} else {
+					this.shitlist.push(data.username);
+					bot.say(`RuhRoh! Due to insult, Gambletron5000 has decided to add ${data.username} to the shitlist/blacklist (now contains ${bot.shitlist.length} users). Blacklisted users are not eligible for any of my giveaways, commands, luck, well wishes, or respect. If your insult was a mistake, contact @MathWins with an apology.`);
+					bot.say(`!rep ${data.username} - My AI has been insulted in Tagalog. (Send a sincere apology to @MathWins to remove this - rep)`);
+				}
+				return null;
+			}
+		}
+	}
