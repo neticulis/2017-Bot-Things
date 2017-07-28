@@ -1,3 +1,4 @@
+/* Get number of occurences of a substring in a string. Mostly used by bot for counting binary streaks */
 function occurrences(string, subString, allowOverlapping=1) {
 
     string += "";
@@ -17,28 +18,34 @@ function occurrences(string, subString, allowOverlapping=1) {
     }
     return n;
 }
+
+// returns object with array for streaks of 1 and array for streaks of 0
+// each cell is numbered as the streak length, and the value is the total number of those streaks found
+// ex: 100110110111 has 
+// 1 streaks: OneStreaks[1]=1,OneStreaks[2]=2,OneStreaks[3]=1 
+// 0 streaks: ZeroStreaks[1]=2,ZeroStreaks[2]=1
 function get_binaryStreaks(binaryString,maxStreak=128) {
-		let ZeroStreaks = [binaryString.length];
-		let OneStreaks = [binaryString.length];
-		for (var iz = 1; iz <= maxStreak; iz++) {
-			let cstreakone = '0' + ('1'.repeat(iz)) + '0';
-			let cstreak = '1' + ('0'.repeat(iz)) + '1';
-			if (binaryString.search(cstreak) >= 0){
-				ZeroStreaks[iz] = occurrences(binaryString, cstreak,1) ;
-			} else {
-				ZeroStreaks[iz]=0;
-		    }
-			
-			if (binaryString.search(cstreakone) >= 0 ){
-				 OneStreaks[iz] = occurrences(binaryString, cstreakone,1);
-			} else {
-				OneStreaks[iz]=0;
-			}
+	let ZeroStreaks = [binaryString.length];
+	let OneStreaks = [binaryString.length];
+	for (var iz = 1; iz <= maxStreak; iz++) {
+		let cstreakone = '0' + ('1'.repeat(iz)) + '0';
+		let cstreak = '1' + ('0'.repeat(iz)) + '1';
+		if (binaryString.search(cstreak) >= 0){
+			ZeroStreaks[iz] = occurrences(binaryString, cstreak,1) ;
+		} else {
+			ZeroStreaks[iz]=0;
+	    }
+
+		if (binaryString.search(cstreakone) >= 0 ){
+			 OneStreaks[iz] = occurrences(binaryString, cstreakone,1);
+		} else {
+			OneStreaks[iz]=0;
 		}
-		let result = {
-			'ZeroStreaks': ZeroStreaks,
-			'OneStreaks': OneStreaks
-		};
-		
-		return result
 	}
+	let result = {
+		'ZeroStreaks': ZeroStreaks,
+		'OneStreaks': OneStreaks
+	};
+
+	return result
+}
