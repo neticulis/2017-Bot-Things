@@ -1,0 +1,25 @@
+get_binaryStreaks(binaryString,maxStreak=128) {
+		let ZeroStreaks = [binaryString.length];
+		let OneStreaks = [binaryString.length];
+		for (var iz = 1; iz <= maxStreak; iz++) {
+			let cstreakone = '0' + ('1'.repeat(iz)) + '0';
+			let cstreak = '1' + ('0'.repeat(iz)) + '1';
+			if (binaryString.search(cstreak) >= 0){
+				ZeroStreaks[iz] = occurrences(binaryString, cstreak,1) ;
+			} else {
+				ZeroStreaks[iz]=0;
+		    }
+			
+			if (binaryString.search(cstreakone) >= 0 ){
+				 OneStreaks[iz] = occurrences(binaryString, cstreakone,1);
+			} else {
+				OneStreaks[iz]=0;
+			}
+		}
+		let result = {
+			'ZeroStreaks': ZeroStreaks,
+			'OneStreaks': OneStreaks
+		};
+		
+		return result
+	}
