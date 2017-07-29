@@ -31,6 +31,10 @@ function get_binaryStreaks(binaryString,maxStreak=128) {
 	let maxOne=0; // the longest streak of 1's
 	let oneMedian=[]; // used to find median
 	let zeroMedian=[]; //  used to find median
+
+	let oneAverage=0; // used to find average
+	let zeroAverage=0; //  used to find average
+
 	for (var iz = 1; iz <= maxStreak; iz++) {
 		let cstreakone = '0' + ('1'.repeat(iz)) + '0';
 		let cstreak = '1' + ('0'.repeat(iz)) + '1';
@@ -56,14 +60,20 @@ function get_binaryStreaks(binaryString,maxStreak=128) {
 	}
 	let oneMed=oneMedian[Math.floor(oneMedian.length/2)];
 	let zeroMed=zeroMedian[Math.floor(zeroMedian.length/2)];
+	let omLength=oneMedian.length;
+	let zmLength=zeroMedian.length;
 
+	oneAverage=((oneMedian.reduce((a,b)=>a+b))/omLength);
+	zeroAverage=((zeroMedian.reduce((a,b)=>a+b))/zmLength);
 	let result = {
 		'zeroStreaks': ZeroStreaks,
 		'oneStreaks': OneStreaks,
 		'zeroMax': maxZero,
 		'oneMax': maxOne,
 		'zeroMedian': zeroMed,
-		'oneMedian': oneMed
+		'oneMedian': oneMed,
+		'zeroAverage': zeroAverage,
+		'oneAverage': oneAverage
 	};
 
 	return result
