@@ -27,24 +27,43 @@ function occurrences(string, subString, allowOverlapping=1) {
 function get_binaryStreaks(binaryString,maxStreak=128) {
 	let ZeroStreaks = [binaryString.length];
 	let OneStreaks = [binaryString.length];
+	let maxZero=0; // the longest streak of 0's
+	let maxOne=0; // the longest streak of 1's
+	let oneMedian=[]; // used to find median
+	let zeroMedian=[]; //  used to find median
 	for (var iz = 1; iz <= maxStreak; iz++) {
 		let cstreakone = '0' + ('1'.repeat(iz)) + '0';
 		let cstreak = '1' + ('0'.repeat(iz)) + '1';
 		if (binaryString.search(cstreak) >= 0){
 			ZeroStreaks[iz] = occurrences(binaryString, cstreak,1) ;
+			maxZero=iz;
+			for (var m=1; m<=ZeroStreaks[iz]; m++){
+				zeroMedian.push(iz);
+			}
 		} else {
 			ZeroStreaks[iz]=0;
 	    }
 
 		if (binaryString.search(cstreakone) >= 0 ){
-			 OneStreaks[iz] = occurrences(binaryString, cstreakone,1);
+			OneStreaks[iz] = occurrences(binaryString, cstreakone,1);
+			maxOne=iz;
+			for (var m=1; m<=ZeroStreaks[iz]; m++){
+				oneMedian.push(iz);
+			}
 		} else {
 			OneStreaks[iz]=0;
 		}
 	}
+	let oneMed=oneMedian[Math.floor(oneMedian.length/2)];
+	let zeroMed=zeroMedian[Math.floor(zeroMedian.length/2)];
+
 	let result = {
-		'ZeroStreaks': ZeroStreaks,
-		'OneStreaks': OneStreaks
+		'zeroStreaks': ZeroStreaks,
+		'oneStreaks': OneStreaks,
+		'zeroMax': maxZero,
+		'oneMax': maxOne,
+		'zeroMedian': zeroMed,
+		'oneMedian': oneMed
 	};
 
 	return result
