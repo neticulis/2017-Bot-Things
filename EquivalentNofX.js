@@ -10,6 +10,7 @@ function get_equivExpFromNStreakOfX(streakLength=2,multiplier = 200){
 function get_equivSumFromNStreakOfX(streakLength=2,multiplier = 200){
   return (Math.round(((multiplier/100)*streakLength)*100))
 }
+
 // returns the equivalent exponential X for multpliers in array 
 // assuming we bet all our winnings and hit these in a streak we would win the equivalent of what is returned
 // ex 2x times 3x times 4x = 24x
@@ -21,6 +22,7 @@ function get_equivExpFromMultipliers(arrayOfMultipliers = [200, 300, 400]){
   }
   return (arrayOfMultipliers.reduceRight(function(a,b,c){return Math.ceil((a/100)*b)}))
 }
+
 // returns the equivalent summed X for multpliers in array 
 // ex 2x + 3x + 4x = 9x
 function get_equivSumFromMultipliers(arrayOfMultipliers = [200, 300, 400]){
