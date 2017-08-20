@@ -138,26 +138,29 @@ tools.chat=function(say){
 tools.addCommas=function(largeNumber) {
 	return largeNumber.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
-
-window.tools.on_game_starting(data=null){
+// Window Engine Triggers
+// Can run all when triggered via: window.tools['on_'+this.trigger.arguments[0]]();
+tools.on_game_starting(data=null){
 	// window function to run on game_starting trigger
 }
-window.tools.on_game_started(data=null){
+tools.on_game_started(data=null){
 	// window function to run on game_started trigger
 }
-window.tools.on_game_crash(data=null){
+tools.on_game_crash(data=null){
 	// window function to run on game_crash trigger
 }
-window.tools.on_cashed_out(data=null){
+tools.on_cashed_out(data=null){
 	// window function to run on cashed_out trigger
 }
-window.tools.on_player_bet(data=null){
+tools.on_player_bet(data=null){
 	// window function to run on player_bet trigger
 }
-window.tools.on_msg(data=null){
+tools.on_msg(data=null){
 	// window function to run on incoming msg trigger
 }
-window.tools.get_playersInProfitAsArray=function() {
+
+// Profitable Players
+tools.get_playersInProfitAsArray=function() {
     let pip = [];
     for (var userkey in players.known) {
         // if seen within last 6 minutes
@@ -173,7 +176,7 @@ window.tools.get_playersInProfitAsArray=function() {
     return pip;
 }
 
-window.tools.get_numPlayersPlayingInProfit = function () {
+tools.get_numPlayersPlayingInProfit = function () {
 	window.tools.get_playersInProfitAsArray();
 	players.profitablePlayersPlaying = 0;
 	for (pr in players.profitablePlayers) {
@@ -182,6 +185,6 @@ window.tools.get_numPlayersPlayingInProfit = function () {
 	return players.profitablePlayersPlaying
 }
 
-window.tools.chatPPPInfo = function () {
+tools.chatPPPInfo = function () {
 	window.tools.chat('Game #' + game.gameID + ' has started with ' + game.playersThatPlayed.length + ' players. ' + window.tools.get_numPlayersPlayingInProfit() + ' of them have a positive net profit since I started tracking ' + (((Date.now() - player.timeStarted) / 60000).toFixed(1)) + ' minutes ago. The #1 net profit is ' + (players.playersInProfit[0].split('|')[1]) + ' at ' + tools.addCommas((players.playersInProfit[0].split('|')[0] / 100).toFixed(0)) + ' bits. The #2 net profit is ' + (players.playersInProfit[1].split('|')[1]) + ' at ' + tools.addCommas((players.playersInProfit[1].split('|')[0] / 100).toFixed(0)) + ' bits. The #3 net profit is ' + (players.playersInProfit[2].split('|')[1]) + ' at ' + tools.addCommas((players.playersInProfit[2].split('|')[0] / 100).toFixed(0)) + ' bits.');
 }
