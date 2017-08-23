@@ -9,7 +9,12 @@
  /* ~~~~~~~	The Match Class handles the main game data ~~~~~~/
   * window.gtbb.game will contain a new match spawn during init
 \ ~~~~ */ window.gtbb.game=null; /* ~~~~~~~~ */ 
-class Match(){
+window.gtbb.gameFunc=function(){
+	
+}
+
+
+class Match {
 	constructor(data=null){
 		
 	}
@@ -20,7 +25,9 @@ class Match(){
 		// Variables that should be reset between games
 	}
 	game_starting(data = null) {
-
+		
+		console.log((gtbb.gameFunc.game_starting(data)==true)?'Handler works':null);
+		
 	}
 	game_started(data = null) {
 
@@ -28,7 +35,7 @@ class Match(){
 	game_crash(data = null) {
 		
 	}
-	player_bet(data = null) {
+	async player_bet(data = null) {
 		
 	}
 	cashed_out(data = null) {
@@ -39,6 +46,14 @@ class Match(){
 	}
 }
 
+
+gtbb.gameFunc.game_starting=function(data=null){
+	console.log('Game starting '+data.game_id);
+	return true
+}
+
+
+
  /* ~~~~~~~	Bustabit Engine Triggers/API ~~~~~ (paste addons ABOVE this)~~~~~~/
   * All game data is pushed to us via engine.on 
   * This should stay at the bottom of the script with the engine.on's
@@ -46,29 +61,25 @@ class Match(){
 
 // the incomingData function directs incoming data to the correct functions and classes based on the trigger
 babListen.incomingData=function(data=null){
-	(typeof window.betbotinit=='undefined' || window.betbotinit==null)?betbotinit=true:null;
 	if (!data){ return null	}
 	// triggerFired will be a string with one of the 6 engine.on triggers
 	let triggerFired=this.trigger.arguments[0];
-	// if betbotinit is true, the script is being ran for the first time
-	// otherwise gtbb should contain the match class and its trigger handlers
-	if (betbotinit!=true && gtbb.game){
+	//  gtbb should contain the match class and its trigger handlers
+	//  if gtbb.game is null, we need to initialize framework
+	if (!gtbb.game){
+		// Initialize the Match class to handle incoming betting data
+		gtbb.game=new Match();
+	} else {
 		// Bot initiated, start handling incoming data
 		// Send data to match class trigger routine
 		gtbb.game[triggerFired](data);
-
-	} else if (betbotinit===true){
-		// Create the bot framework
-		
-		// Initialize the Match class to handle incoming betting data
-		gtbb.game=new Match();
 	}
 	
 }
 
-engine.on('game_starting', engineListener);
-engine.on('game_started', engineListener);
-engine.on('game_crash', engineListener);
-engine.on('cashed_out', engineListener);
-engine.on('player_bet', engineListener);
-engine.on('msg', engineListener);
+engine.on('game_starting', babListen.incomingData);
+engine.on('game_started', babListen.incomingData);
+engine.on('game_crash', babListen.incomingData);
+engine.on('cashed_out', babListen.incomingData);
+engine.on('player_bet', babListen.incomingData);
+engine.on('msg', babListen.incomingData);
