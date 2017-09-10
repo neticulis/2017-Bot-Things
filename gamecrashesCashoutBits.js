@@ -5,7 +5,7 @@ var crypto = require('crypto');
 var hash = process.argv[2];
 if (!hash) throw new Error('You need to call this script with the starting hash!');
 
-var terminatingHash = 'f701c153685f5556afd6eb4ecaca0f00d2836b5e2885edbd885eba15409f019e'
+var terminatingHash = '55fd4cda2e3f67b490d67e4425e87ce350f1c5fa4e73b741d3f6c8cd384f0895'
 
 while (hash != terminatingHash) {
 	console.log(crashPointFromHash(hash));
