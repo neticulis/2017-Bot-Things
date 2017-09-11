@@ -4,7 +4,7 @@
  * Eventually this should be automated so it builds a script using only the parts we need for a strategy
 \~~~~~ */
 window.gtab = {};
-gtab.ver = 'GTAB (Bare) v0.0101a'; /* ~~~~~~~~ */
+gtab.ver = 'GTAB (Bare) v0.0001a'; /* ~~~~~~~~ */
 gtab.engine = engine;
 // Bot will not send chat messages when this is true (will still parse and everything else)
 gtab.muted = false;
