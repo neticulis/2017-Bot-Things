@@ -1,6 +1,39 @@
 // Holds all the tool functions
 window.tools={};
 
+// normalizeProfit makes the script increase initial bankroll at steady rate when in profit (thus reducing profit) 
+// a way to scoot our borderline up so the bot continously pushes to make more profit
+window.tools.normalizeProfit=function(normalizationRate=2){
+	player.netProfit=(player.currentBankroll-player.initialBankroll);
+	if (player.netProfit!=null && player.netProfit!=0 && player.currentBankroll>player.initialBankroll*1.03){
+		let profitPerGame=((player.netProfit) / player.numGamesPlayed);
+		let percProf=(Math.abs(player.netProfit)/player.initialBankroll);
+		player.initialBankroll+=(profitPerGame*(percProf*normalizationRate));
+		console.log('Decreasing Profit: '+(((profitPerGame*(percProf*normalizationRate))/100).toFixed(2))+' Normalization Rate: ((2% of ProfitPerGame) * '+normalizationRate+') ('+(((profitPerGame*(percProf*normalizationRate))/100).toFixed(2))+' bits added to initial bankroll)');
+	}
+	
+}
+
+// returns gamestate ID's that are over [percent] of probability average
+window.tools.bestStates=function(stateLog=Array.from(player.strategy.sotg144),percent=0.6,minGamesLogged=16){
+	let bests=[];
+	for (var i in stateLog) {
+		let x = (tools.get_binarySum(stateLog[i]) / stateLog[i].length);
+		(x >= percent && stateLog[i].length >= minGamesLogged) ? bests.push(i): null;
+	}
+	return bests
+}
+
+// returns gamestate ID's that are under [percent] of probability average
+window.tools.worstStates=function(stateLog=Array.from(player.strategy.sotg144),percent=0.4,minGamesLogged=16){
+	let worsts=[];
+	for (var i in stateLog) {
+		let x = (tools.get_binarySum(stateLog[i]) / stateLog[i].length);
+		(x < percent && stateLog[i].length >= minGamesLogged) ? worsts.push(i): null;
+	}
+	return worsts
+}
+
 		/*		BALANCE / BANKROLL TOOLS	*/
 		/*		Balance Vs History	*/
 
