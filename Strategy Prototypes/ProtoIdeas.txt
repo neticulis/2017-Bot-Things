@@ -1,0 +1,10 @@
+/*	Prototype Ideas/Todo
+	1. Cash out after players with the largest bet(s)
+		1b. Cash out after pips with the largest bet(s)
+		ex: after the 1/2/3/4/etc largest betters cash out, we cash out
+
+	2. Cash out when sum of player bets cashed out is > sum of bets still in the game
+		ex: 35 players cashed out, in total they bet 90,000 bits, but 110 players not cashed bet a total of 100,000 bits: wait to cash out
+		ex: 12 players cashed out, in total they bet 193,000 bits, but 130 players not cashed bet a total of 192,000 bits: trigger early cash out
+
+*/
