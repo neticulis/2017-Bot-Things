@@ -1,3 +1,5 @@
+//Group Follow Strategy Prototyping - Part 9 https://www.youtube.com/watch?v=VeZ7tuctGqA
+
 window.strategyPrototype[1]=function(){
 	if (player.strategy.groupFollow==false){
 		// bankrollPlus:
