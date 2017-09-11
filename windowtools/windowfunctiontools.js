@@ -1,5 +1,130 @@
 // Holds all the tool functions
 window.tools={};
+			/* Tools made during/for the group follow prototyping */
+
+
+// pip: players in profit
+// return array of players in iprofit seen within last 12 minutes with 2+ games played
+// iprofit is netProfit with all player bets being identical, a better way to compare
+// by default all ibets (identical bets) are set at 100 bits
+// max will return only the top n players
+// identicalBets set to true will use the iProfit value of a player, else will use the real netProfit
+window.tools.get_pip=function(max=200,identicalBets=true,seenInLastMins=12,minGamesPlayed=2,minProfit=10000) {
+	game.playersThatPlayed = Array.from(game.playersJoined);
+    if (!players.known || players.known.length<1){
+		console.log(`get_playersInProfitAsArray error: 0 players.known`)
+		return null
+	}
+	let pip = [];
+	let msSeen = ((seenInLastMins*60)*1000);
+   
+	if (identicalBets==true){
+		for (var userkey in players.known) {
+			if (((Date.now() - players.known[userkey].lastSeen) <= msSeen) && (players.known[userkey].gamesPlayed>=minGamesPlayed) && (players.known[userkey].iProfit > minProfit)) {
+				pip.push(Math.round(players.known[userkey].iProfit)+'|'+players.known[userkey].username);
+			}
+		}
+	}
+	else if (identicalBets==false){
+		for (var userkey in players.known) {
+			if (((Date.now() - players.known[userkey].lastSeen) < msSeen) && (players.known[userkey].gamesPlayed>=minGamesPlayed) && (players.known[userkey].netProfit > minProfit)) {
+				pip.push(Math.round(players.known[userkey].netProfit)+'|'+players.known[userkey].username);
+			}
+		}
+	}
+    
+	if (!pip || pip.length<1){
+		console.log(`get_playersInProfitAsArray counted 0 players`)
+		return null
+	}
+    // Sort in descending profit, cell 0 is the top player
+    pip.sort(function(a,b){return b.split('|')[0]-a.split('|')[0]});
+	pip=pip.slice(0,max);
+	players.playersInProfit=Array.from(pip);
+    return pip;
+}
+window.tools.get_playersInProfitAsArray=window.tools.get_pip;
+
+// ppinp: players playing in profit
+// return array of players in iprofit that are playing in current game
+// iprofit is netProfit with all player bets being identical, a better way to compare
+// by default all ibets (identical bets) are set at 100 bits
+window.tools.get_ppinp=function(max=200,identicalBets=true,seenInLastMins=12,minGamesPlayed=2,minProfit=10000,theTop=20){
+				  // max,identicalBets,seenInLastMins,minGamesPlayed,minProfit
+	let pipamt=tools.get_pip(500,identicalBets,seenInLastMins,minGamesPlayed,minProfit);
+	// get the top 75% of players in profit
+	let pip=tools.get_pip((pipamt.length*0.75),identicalBets,seenInLastMins,minGamesPlayed,minProfit);
+	
+	let plinp=[];
+	for (var i in pip){
+		pip[i]=pip[i].split('|')[1];
+		if (game.playersThatPlayed.indexOf(pip[i])>=0){
+			plinp.push(pip[i]);
+        }
+    }
+	players.playersPlayingInProfit=Array.from(plinp);
+
+	
+	return plinp
+}
+// Verbose function name
+window.tools.get_playersPlayingInProfit=window.tools.get_ppinp;
+
+// pwinp: players won in profit
+// return array of players in iprofit that are have cashed out in current game
+// iprofit is netProfit with all player bets being identical, a better way to compare
+// by default all ibets (identical bets) are set at 100 bits
+window.tools.get_pwinp=function(max=200,identicalBets=true,seenInLastMins=20,minGamesPlayed=8,minProfit=10000){
+	
+				  // max,identicalBets,seenInLastMins,minGamesPlayed,minProfit
+	let pip=Array.from(players.playersInProfit);
+	let pwinp=[];
+	for (var i in pip){
+		pip[i]=pip[i].split('|')[1];
+		if (game.playersWon.indexOf(pip[i])>=0){
+			pwinp.push(pip[i]);
+        }
+    }
+	players.playersWinningInProfit=Array.from(pwinp);
+	return pwinp
+}
+
+// Verbose function name
+window.tools.get_playersWonInProfit=window.tools.get_pwinp;
+
+
+// if cullThem is true, will delete LTNS (long time no see) players from players.known
+// else logs number of total players that are LTNS to console
+// run occasionally to keep player list fresh
+window.tools.cullOldPlayers=function(cullThem=false,notSeenForMins=60){
+	let msSeen = ((notSeenForMins*60)*1000);
+	let ltns=[]; // long time no see - players not seen in minMS
+	let totpl=0;
+	for (var userkey in players.known) {
+		totpl++
+		if (((Date.now() - players.known[userkey].lastSeen) >= msSeen)) {
+			ltns.push(userkey);
+			if (cullThem==true){
+				delete players.known[userkey]
+			}
+		}
+	}
+	if (cullThem==true){
+		console.log(`${ltns.length} of ${totpl} players were removed from players.known database`);
+	} else {
+		console.log(`${ltns.length} of ${totpl} players are LTNS (long time no see) - none removed`);
+	}
+}
+// Will remove PIPHistory logs older than keepLast games
+// PIPHistory Logs are: player.strategy.copercHistory
+// 			player.strategy.copercTargetHistory
+//			player.strategy.percPIPSPlayed
+window.tools.cullPIPHistory=function(keepLast=12){
+
+	player.strategy.copercHistory=player.strategy.copercHistory.slice(0,keepLast); 
+	player.strategy.copercTargetHistory=player.strategy.copercTargetHistory.slice(0,keepLast); 
+	player.strategy.percPIPSPlayed=player.strategy.percPIPSPlayed.slice(0,keepLast); 
+}
 
 // normalizeProfit makes the script increase initial bankroll at steady rate when in profit (thus reducing profit) 
 // a way to scoot our borderline up so the bot continously pushes to make more profit
