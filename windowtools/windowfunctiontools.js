@@ -1,5 +1,36 @@
 // Holds all the tool functions
 window.tools={};
+
+
+			/* Tools made during/for the ByteBuster strategy prototyping */
+
+
+ /* tools.get_betForDesiredProfitAtX([profitDesiredInSatoshis],[Multiplier])
+ |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+ | returns the bet amount needed to make [profitDesired] at [Multiplier]x                           |
+ | Example: "I want to make 100 bits profit, at multiplier 3.3x, what should I bet?"                |
+ | Answer: betAmount=tools.get_betForDesiredProfitAtX(10000,330) // returns 4400 (44.00 bit bet)    |
+ |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+window.tools.get_betForDesiredProfitAtX = function (profitDesired = 1600, MultiplierX = 200) {
+    let amountToBet = null;
+    ((MultiplierX + '').includes('.') || MultiplierX < 100) ? amountToBet = (Math.round((profitDesired / (((Math.round(MultiplierX * 100)) / 100) - 1)) / 100) * 100): amountToBet = (Math.ceil((profitDesired / ((MultiplierX / 100) - 1)) / 100) * 100);
+    return amountToBet;
+}
+
+ /* tools.get_martingaleBetMultiple([Multiplier]) - Perfect martingales / chase for any multiplier
+ |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~/
+ | Given a multiplier, returns the "Increase bet by ___x on loss" multiple/number needed in order to recover losses   /
+ | Example for 2x: tools.get_martingaleBetMultiple(200) // returns 2, every time you lose, you double your bet       /
+ | Example for 1000x: tools.get_martingaleBetMultiple(100000) // returns 1.001 (increase bet * 1.001 on every loss) /
+ | Example for 12.34x: tools.get_martingaleBetMultiple(1234) // returns 1.087 (increase bet * 1.087 on every loss) /
+ |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+window.tools.get_martingaleBetMultiple = function (yourMultiplier = 200) {
+	((yourMultiplier + '').includes('.') || yourMultiplier<100)?yourMultiplier=Math.round(yourMultiplier*100):null;
+	let digits = (yourMultiplier + '').length-1;
+	return (((Math.ceil((1 / (1 - (Math.ceil(((100 / 101) * (99 / (((yourMultiplier*1)/100) * 100 - 1))) * (10 ** digits))) / (10 ** digits))) * (100 ** (digits-1))) / (100 ** (digits-1))).toFixed(digits))/1)
+}
+
+
 			/* Tools made during/for the group follow prototyping */
 
 
