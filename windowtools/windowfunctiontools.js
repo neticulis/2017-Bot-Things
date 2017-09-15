@@ -12,9 +12,9 @@ window.tools={};
  | Answer: betAmount=tools.get_betForDesiredProfitAtX(10000,330) // returns 4400 (44.00 bit bet)    |
  |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 window.tools.get_betForDesiredProfitAtX = function (profitDesired = 1600, MultiplierX = 200) {
-    let amountToBet = null;
-    ((MultiplierX + '').includes('.') || MultiplierX < 100) ? amountToBet = (Math.round((profitDesired / (((Math.round(MultiplierX * 100)) / 100) - 1)) / 100) * 100): amountToBet = (Math.ceil((profitDesired / ((MultiplierX / 100) - 1)) / 100) * 100);
-    return amountToBet;
+	let amountToBet = null;
+	amountToBet = (profitDesired / ((MultiplierX / 100) - 1));
+	return amountToBet;
 }
 
  /* tools.get_martingaleBetMultiple([Multiplier]) - Perfect martingales / chase for any multiplier
