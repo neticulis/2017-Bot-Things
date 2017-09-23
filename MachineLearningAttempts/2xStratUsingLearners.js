@@ -1,3 +1,6 @@
+// NOTICE: This file will not work without the full gambletron script (private until release)
+//         However, you are free to muscle it into whatever script you currently use 
+//         No support will be given, you are on your own if you want to mess with this
 
 window.miniStrats.learner2xStrats[0]=function(){
 	if (player.numGamesPlayed==0){
