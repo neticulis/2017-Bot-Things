@@ -1,5 +1,5 @@
 
-
+// This is Version 2.5 learner data learned from cashoutbits.com and exported as javascript, with learned results from cashoutbits.com
 learner["pattern3Quads5"] = {
 	"ID": 4,
 	"Outcomes": [153, 131, 131, 111, 147, 117, 112, 96],
