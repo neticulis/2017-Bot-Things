@@ -64,9 +64,13 @@ window.learner.average.CorrectMax=null;
 window.learner.total.CorrectedSums=null;
 window.learner.average.CorrectedSums=null;
 
-window.learner.total.currentPercentTrue=0;
-window.learner.average.currentPercentTrue=0;
+window.learner.total.PercentTrue=0;
+window.learner.average.PercentTrue=0;
 
+window.learner.total.Yups=0;
+window.learner.total.Nopes=0;
+window.learner.average.Yups=0;
+window.learner.average.Nopes=0;
 /*	Version 3 Additions (work in progress)
 Questions and Variables! 
 are to help create more patterns, but should be programmed in such a way that a simple ai could create questions from variables and then patterns from questions */
@@ -75,22 +79,30 @@ window.learner.questions={};
 // Variables should be any usefule variable we can make into a comparison statement, using either a static number or another variable. The resulting statement can be used to create a question
 window.learner.variables={};
 // Anything based on game history medians
-window.learner.questions.median=[];
-window.learner.variables.median=[];
+window.learner.questions.medians={};
+window.learner.variables.medians={};
 // Anything calculated with crashes.probsum() (a custom created probability sum of the game history, a different kind of median)
-window.learner.questions.psum=[];
-window.learner.variables.psum=[];
+window.learner.questions.psum={};
+window.learner.variables.psum={};
 // Anything stored in the profile class, such as win loss streaks, bankrolls, balance histories, etc
-window.learner.questions.player=[];
-window.learner.variables.player=[];
+window.learner.questions.player={};
+window.learner.variables.player={};
 // Anything related to players other than ourselves, likely will be confined to identities class (players.known['user_'+username].....)
-window.learner.questions.players=[];
-window.learner.variables.players=[];
+window.learner.questions.players={};
+window.learner.variables.players={};
 // Anything related to the last games basic data and outcome, stored in the match class, such as players joined, players won, lost, amount bet, max bet, highest bet etc etc.
-window.learner.questions.lastgame=[];
-window.learner.variables.lastgame=[];
+window.learner.questions.game={};
+window.learner.variables.game={};
 
+window.learner.questions.strategy={};
+window.learner.variables.strategy={};
 
+window.learner.questions.crashes={};
+window.learner.variables.crashes={};
+// 
+window.learner.questions.learner={};
+window.learner.variables.learner={};
+window.learner.maxWrong=1.02; // 1.02 = 2% more wrong predictions than right predictions are allowed for any single learner, any more wrong, and its data will not be used
 window.learner.learners = ['patternRVG8', 'pattern3Quads5'];
 
 
@@ -343,7 +355,6 @@ window.learner.getAllOutcomes = function (multiplier = 200, startAt = 0) {
 		typeof window.learner[name].Outcomes[learnerID] == "undefined" ? window.learner[name].Outcomes[learnerID] = 0 : null;
 		window.learner[name].Outcomes[learnerID] == null ? window.learner[name].Outcomes[learnerID] = 0 : null;
 		window.learner[name].Sums[learnerID] == null ? window.learner[name].Sums[learnerID] = 0 : null;
-
 		typeof window.learner[name].Predictions[learnerID] == "undefined" ? window.learner[name].Predictions[learnerID] = 0 : null;
 		typeof window.learner[name].Sums[learnerID] == "undefined" ? window.learner[name].Sums[learnerID] = 0 : null;
 		typeof window.learner[name].HistoryRequired == "undefined" ? window.learner[name].HistoryRequired = 128 : null;
@@ -353,6 +364,8 @@ window.learner.getAllOutcomes = function (multiplier = 200, startAt = 0) {
 		typeof window.learner[name].fuzzy == "undefined" ? window.learner[name].fuzzy = 0.5 : null;
 		typeof window.learner[name].Fuzz == "undefined" ? window.learner[name].Fuzz = [] : null;
 		typeof window.learner[name].Fuzz[learnerID] == "undefined" ? window.learner[name].Fuzz[learnerID] = 0.5 : null;
+		typeof window.learner[name].TotalSums == "undefined"?window.learner[name].TotalSums =[]:null;
+		typeof window.learner[name].TotalSums[learnerID] == "undefined"?window.learner[name].TotalSums[learnerID] =((window.learner[name].Outcomes[learnerID]*2)-window.learner[name].Predictions[learnerID]):window.learner[name].TotalSums[learnerID] =((window.learner[name].Outcomes[learnerID]*2)-window.learner[name].Predictions[learnerID]);
 		
 		let numOutcomes = window.learner[name].Outcomes[learnerID];
 		let sum = window.learner[name].Sums[learnerID];
@@ -364,7 +377,9 @@ window.learner.getAllOutcomes = function (multiplier = 200, startAt = 0) {
 		if (window.learner[name].Predictions[learnerID] == null) {
 			continue
 		}
-		
+		// Version 3 we can obtain the total sum of outcomes -+ without doing sum++ sum-- sum variable, using (Outcomes*2)-Predictions
+		// added window.learner[name].TotalSums which is the result of the above, Sums will now be a modified sum based on total and correctedsum
+		// 		Mind Blown? 0.69+(crashes.probSum(1,0)*3.14) - we can use the damn probSum for our Sum variable without even testing the last crash!
 		if ((crashes.history.length >= window.learner[name].HistoryRequired) && (player.numGamesPlayed >= window.learner[name].GamesPlayedRequired)) {
 			if (crashes.history[startAt] >= multiplier) {
 				if (window.learner[name].ActualPredictions[learnerID]!=null){
@@ -388,13 +403,13 @@ window.learner.getAllOutcomes = function (multiplier = 200, startAt = 0) {
 				}
 				window.learner[name].Fuzz[learnerID] = parseFloat(window.learner[name].Fuzz[learnerID]);
 				window.learner[name].fuzzy = parseFloat(window.learner[name].fuzzy);
-				window.learner[name].Fuzz[learnerID] = ((window.learner[name].Fuzz[learnerID]+0.999)/2);
+				window.learner[name].Fuzz[learnerID] = (((window.learner[name].previous.Fuzz)+(window.learner[name].Fuzz[learnerID])+(0.99))/3);
+				window.learner[name].fuzzy = (((window.learner[name].previous.Fuzzy)+window.learner[name].fuzzy+0.99)/2);
 				
-				window.learner[name].fuzzy = ((window.learner[name].fuzzy+0.999)/2);
+				window.learner[name].fuzzy = (((fuzzOP)+(window.learner[name].Fuzz[learnerID]) + (((crashes.probSum(1) / 2) + 0.5)) + ((crashes.probSum(1,1) / 2) + 0.5) + ((crashes.probSum(1,2) / 2) + 0.5) + ((crashes.probSum(1,3) / 2) + 0.5) + (window.learner[name].fuzzy) + (window.learner[name].fuzzy) + (0.999) + (0.334 * (window.learner[name].fuzzy / 2))) / 10);
+				window.learner[name].Fuzz[learnerID] = (((fuzzOP)+(window.learner[name].previous.Fuzz)+(window.learner[name].previous.Fuzzy) + (((crashes.probSum(1) / 2) + 0.5)) + ((crashes.probSum(1,1) / 2) + 0.5) + ((crashes.probSum(1,2) / 2) + 0.5) + ((crashes.probSum(1,3) / 2) + 0.5) + window.learner[name].Fuzz[learnerID] + window.learner[name].Fuzz[learnerID] + 0.999 + (0.334 * (window.learner[name].Fuzz[learnerID] / 2))) / 11);
 				
-				window.learner[name].fuzzy = (((fuzzOP)+window.learner[name].Fuzz[learnerID] + (((crashes.probSum(1) / 2) + 0.5)) + ((crashes.probSum(1,1) / 2) + 0.5) + ((crashes.probSum(1,2) / 2) + 0.5) + ((crashes.probSum(1,3) / 2) + 0.5) + window.learner[name].fuzzy + window.learner[name].fuzzy + 0.999 + (2 * (window.learner[name].fuzzy / 2))) / 10);
-				window.learner[name].Fuzz[learnerID] = (((fuzzOP)+window.learner[name].fuzzy + (((crashes.probSum(1) / 2) + 0.5)) + ((crashes.probSum(1,1) / 2) + 0.5) + ((crashes.probSum(1,2) / 2) + 0.5) + ((crashes.probSum(1,3) / 2) + 0.5) + window.learner[name].Fuzz[learnerID] + window.learner[name].Fuzz[learnerID] + 0.999 + (2 * (window.learner[name].Fuzz[learnerID] / 2))) / 10);
-				window.learner[name].Sums[learnerID]++
+				
 					window.learner[name].Outcomes[learnerID]++
 			} else {
 				
@@ -420,24 +435,107 @@ window.learner.getAllOutcomes = function (multiplier = 200, startAt = 0) {
 				}
 				window.learner[name].Fuzz[learnerID] = parseFloat(window.learner[name].Fuzz[learnerID]);
 				window.learner[name].fuzzy = parseFloat(window.learner[name].fuzzy);
-				window.learner[name].Fuzz[learnerID] = ((window.learner[name].Fuzz[learnerID]+0.001)/2);
-				window.learner[name].fuzzy = ((window.learner[name].fuzzy+0.001)/2);
+				window.learner[name].Fuzz[learnerID] = (((window.learner[name].previous.Fuzz)+(window.learner[name].Fuzz[learnerID])+(0.001))/3);
+				window.learner[name].fuzzy = (((window.learner[name].previous.Fuzzy)+window.learner[name].fuzzy+0.001)/2);
 				window.learner[name].fuzzy = (((fuzzOP)+(window.learner[name].Fuzz[learnerID]) + (((crashes.probSum(1) / 2) + 0.5)) + ((crashes.probSum(1,1) / 2) + 0.5) + ((crashes.probSum(1,2) / 2) + 0.5) + ((crashes.probSum(1,3) / 2) + 0.5) + (window.learner[name].fuzzy) + (window.learner[name].fuzzy) + (0.001) + (0.334 * (window.learner[name].fuzzy / 2))) / 10);
-				window.learner[name].Fuzz[learnerID] = (((fuzzOP)+window.learner[name].fuzzy + (((crashes.probSum(1) / 2) + 0.5)) + ((crashes.probSum(1,1) / 2) + 0.5) + ((crashes.probSum(1,2) / 2) + 0.5) + ((crashes.probSum(1,3) / 2) + 0.5) + window.learner[name].Fuzz[learnerID] + window.learner[name].Fuzz[learnerID] + 0.001 + (0.334 * (window.learner[name].Fuzz[learnerID] / 2))) / 10);
-				window.learner[name].Sums[learnerID]--
+				window.learner[name].Fuzz[learnerID] = (((fuzzOP)+(window.learner[name].previous.Fuzz)+(window.learner[name].previous.Fuzzy) + (((crashes.probSum(1) / 2) + 0.5)) + ((crashes.probSum(1,1) / 2) + 0.5) + ((crashes.probSum(1,2) / 2) + 0.5) + ((crashes.probSum(1,3) / 2) + 0.5) + window.learner[name].Fuzz[learnerID] + window.learner[name].Fuzz[learnerID] + 0.001 + (0.334 * (window.learner[name].Fuzz[learnerID] / 2))) / 11);
+				
 			}
+			window.learner[name].Fuzz[learnerID]=(((window.learner[name].Fuzz[learnerID])+((1+(crashes.probSum(1,6)))/2))/2);
+			window.learner[name].fuzzy =(((window.learner[name].fuzzy)+(0.5)+((1+(crashes.probSum(1,0)))-0.5))/3);
+			
 			if (window.isNaN(window.learner[name].fuzzy)==true) {
-				window.learner[name].fuzzy = 0.5;
+				window.learner[name].fuzzy = 0.42;
 			}
 			if (window.isNaN(window.learner[name].Fuzz[learnerID])==true) {
-				window.learner[name].Fuzz[learnerID] = 0.5;
+				window.learner[name].Fuzz[learnerID] = 0.42;
+			}
+			if (window.learner[name].Fuzz[learnerID]<=0) {
+				window.learner[name].Fuzz[learnerID] = 0.002;
+			}
+			if (window.learner[name].Fuzz[learnerID]>=1) {
+				window.learner[name].Fuzz[learnerID] = 0.998;
 			}
 			window.learner[name].Predictions[learnerID]++;
-			(window.learner[name].IncorrectMax[window.learner[name].ID] >window.learner[name].CorrectMax[window.learner[name].ID])? window.learner[name].SelfCorrectFromMax[window.learner[name].ID] = window.learner[name].IncorrectMax[window.learner[name].ID]-window.learner[name].CorrectMax[window.learner[name].ID]: null;
-			(window.learner[name].IncorrectTotal[window.learner[name].ID] >window.learner[name].CorrectTotal[window.learner[name].ID])? window.learner[name].SelfCorrectFromTotal[window.learner[name].ID] = window.learner[name].IncorrectTotal[window.learner[name].ID]-window.learner[name].CorrectTotal[window.learner[name].ID]: null;
-			(window.learner[name].IncorrectMax[window.learner[name].ID] >window.learner[name].CorrectMax[window.learner[name].ID] && window.learner[name].IncorrectTotal[window.learner[name].ID] >window.learner[name].CorrectTotal[window.learner[name].ID])? window.learner[name].SelfCorrectFromBoth[window.learner[name].ID] = ((window.learner[name].IncorrectTotal[window.learner[name].ID]-window.learner[name].CorrectTotal[window.learner[name].ID])+(window.learner[name].IncorrectMax[window.learner[name].ID]-window.learner[name].CorrectMax[window.learner[name].ID])) : null;
-
-
+			window.learner[name].TotalSums[learnerID]=((window.learner[name].Outcomes[learnerID]*2)-window.learner[name].Predictions[learnerID]);
+			(window.learner[name].IncorrectMax[learnerID] >window.learner[name].CorrectMax[learnerID])? window.learner[name].SelfCorrectFromMax[learnerID] = window.learner[name].IncorrectMax[learnerID]-window.learner[name].CorrectMax[learnerID]: null;
+			(window.learner[name].IncorrectTotal[learnerID] >window.learner[name].CorrectTotal[learnerID])? window.learner[name].SelfCorrectFromTotal[learnerID] = window.learner[name].IncorrectTotal[learnerID]-window.learner[name].CorrectTotal[learnerID]: null;
+			(window.learner[name].IncorrectMax[learnerID] >window.learner[name].CorrectMax[learnerID] && window.learner[name].IncorrectTotal[learnerID] >window.learner[name].CorrectTotal[learnerID])? window.learner[name].SelfCorrectFromBoth[learnerID] = ((window.learner[name].IncorrectTotal[learnerID]-window.learner[name].CorrectTotal[learnerID])+(window.learner[name].IncorrectMax[learnerID]-window.learner[name].CorrectMax[learnerID])) : null;
+			
+			
+			// Yups are correct predictions, current, total, max should be evaluated
+			// cur is the current streak of correct and incorrect predictions
+			let curYups=window.learner[name].CorrectCount[learnerID];
+			let curNopes=window.learner[name].IncorrectCount[learnerID];
+			window.learner[name].current.curYups=window.learner[name].CorrectCount[learnerID];
+			window.learner[name].current.curNopes=window.learner[name].IncorrectCount[learnerID];
+			// tot is the total number of correct and incorrect predictions
+			let totYups=window.learner[name].CorrectTotal[learnerID];
+			let totNopes=window.learner[name].IncorrectTotal[learnerID];
+			window.learner[name].current.totYups=window.learner[name].CorrectTotal[learnerID];
+			window.learner[name].current.totNopes=window.learner[name].IncorrectTotal[learnerID];
+			// max is the highest streak of correct and incorrect predictions
+			let maxYups=window.learner[name].CorrectMax[learnerID];
+			let maxNopes=window.learner[name].IncorrectMax[learnerID];
+			window.learner[name].current.maxYups=window.learner[name].CorrectMax[learnerID];
+			window.learner[name].current.maxNopes=window.learner[name].IncorrectMax[learnerID];
+			window.learner[name].CorrectedSums[learnerID]=0;
+			
+			if (curNopes>(maxNopes/2)){
+				
+				
+				if (window.learner[name].ActualPredictions[learnerID]==true){
+					// if actual predict is true, then sum was positivea nd we should move it towards negative, else sum was negative and we should move it towards positive
+					window.learner[name].CorrectedSums[learnerID]+=Math.ceil(((curNopes)/3)+crashes.probSum(1,0));
+				} else {
+					window.learner[name].CorrectedSums[learnerID]+=Math.ceil(Math.abs(((curNopes)/3)+crashes.probSum(1,0)));
+				}
+			}
+			if (maxNopes>maxYups && curNopes>=1 && curYups==0){
+				
+				
+				if (window.learner[name].ActualPredictions[learnerID]==true){
+					// if actual predict is true, then sum was positivea nd we should move it towards negative, else sum was negative and we should move it towards positive
+					window.learner[name].CorrectedSums[learnerID]+=Math.ceil(((maxYups-maxNopes)/1.334)+crashes.probSum(1,0));
+				} else {
+					window.learner[name].CorrectedSums[learnerID]+=Math.ceil(Math.abs(((maxYups-maxNopes)/1.334)+crashes.probSum(1,0)));
+				}
+			}
+			if (totNopes>totYups && curNopes>=1 && curYups==0){
+				
+				
+				if (window.learner[name].ActualPredictions[learnerID]==true){
+					// if actual predict is true, then sum was positivea nd we should move it towards negative, else sum was negative and we should move it towards positive
+					window.learner[name].CorrectedSums[learnerID]+=Math.ceil(((totYups-totNopes)/1.667)+crashes.probSum(1,0));
+				} else {
+					window.learner[name].CorrectedSums[learnerID]+=Math.ceil(Math.abs(((totYups-totNopes)/1.667)+crashes.probSum(1,0)));
+				}
+				
+				
+			}
+			
+			if (totNopes<=totYups && maxNopes<=maxYups){
+				window.learner[name].Sums[learnerID]=Math.round((window.learner[name].CorrectedSums[learnerID]+window.learner[name].Sums[learnerID]+window.learner[name].TotalSums[learnerID])/3);
+			} else {
+				window.learner[name].Sums[learnerID]=Math.round((window.learner[name].CorrectedSums[learnerID]+window.learner[name].Sums[learnerID])/2);
+			}
+			window.learner[name].Sums[learnerID]+=window.learner[name].CorrectedSums[learnerID];
+			// now we self correct the sum 
+			if (curNopes>0 && window.learner[name].ActualPredictions[learnerID]==true){
+				// prediction was WRONG  if actual predict is true, then sum was positive and we should move it towards negative, else sum was negative and we should move it towards positive
+				window.learner[name].Sums[learnerID]-=(0.69+(crashes.probSum(1,0)*3.14));
+			} else if (curYups>0 && window.learner[name].ActualPredictions[learnerID]==true){
+				// prediction was RIGHT and sum when predicted was positive (predicted true, got true, + to sum)
+				window.learner[name].Sums[learnerID]+=(0.69+(crashes.probSum(1,0)*3.14));
+			} else if (curNopes>0 && window.learner[name].ActualPredictions[learnerID]==false){
+				// prediction was WRONG and sum when predicted was positive (predicted true, got true, + to sum)
+				window.learner[name].Sums[learnerID]-=(0.69+(crashes.probSum(1,0)*3.14));
+			}  else if (curYups>0 && window.learner[name].ActualPredictions[learnerID]==false){
+				// prediction was RIGHT and sum when predicted was positive (predicted true, got true, + to sum)
+				window.learner[name].Sums[learnerID]+=(0.69+(crashes.probSum(1,0)*3.14));
+			} 
+			
+			
 		}
 		
 		
@@ -460,10 +558,25 @@ window.learner.getAllOutcomes = function (multiplier = 200, startAt = 0) {
 		typeof window.learner[name].current.Outcomes!= "undefined" ? window.learner[name].previous.Outcomes=window.learner[name].current.Outcomes: null;
 		typeof window.learner[name].current.Predictions!= "undefined" ? window.learner[name].previous.Predictions=window.learner[name].current.Predictions: null;
 		typeof window.learner[name].current.PercentTrue!= "undefined" ? window.learner[name].previous.PercentTrue=window.learner[name].current.PercentTrue: null;
-		
+		typeof window.learner[name].current.curYups!= "undefined" ? window.learner[name].previous.curYups=window.learner[name].current.curYups: window.learner[name].current.curYups=0;
+		typeof window.learner[name].current.curNopes!= "undefined" ? window.learner[name].previous.curNopes=window.learner[name].current.curNopes: window.learner[name].current.curNopes=0;
+		typeof window.learner[name].current.maxYups!= "undefined" ? window.learner[name].previous.maxYups=window.learner[name].current.maxYups: window.learner[name].current.maxYups=0;
+		typeof window.learner[name].current.maxNopes!= "undefined" ? window.learner[name].previous.maxNopes=window.learner[name].current.maxNopes: window.learner[name].current.maxNopes=0;
+		typeof window.learner[name].current.totYups!= "undefined" ? window.learner[name].previous.totYups=window.learner[name].current.totYups: window.learner[name].current.totYups=0;
+		typeof window.learner[name].current.totNopes!= "undefined" ? window.learner[name].previous.totNopes=window.learner[name].current.totNopes: window.learner[name].current.totNopes=0;
 		window.learner[name].current = {};
-		// Update variables from current pattern
+		
+		window.learner[name].current.curYups=window.learner[name].CorrectCount[learnerID];
+		window.learner[name].current.curNopes=window.learner[name].IncorrectCount[learnerID];
+
+		window.learner[name].current.totYups=window.learner[name].CorrectTotal[learnerID];
+		window.learner[name].current.totNopes=window.learner[name].IncorrectTotal[learnerID];
+
+		window.learner[name].current.maxYups=window.learner[name].CorrectMax[learnerID];
+		window.learner[name].current.maxNopes=window.learner[name].IncorrectMax[learnerID];
+
 		window.learner[name].current.CorrectedSums = parseFloat(window.learner[name].CorrectedSums[learnerID]);
+		window.learner[name].current.TotalSums = parseFloat(window.learner[name].TotalSums[learnerID]);
 		window.learner[name].current.SelfCorrectFromBoth = parseInt(window.learner[name].SelfCorrectFromBoth[learnerID]);
 		window.learner[name].current.SelfCorrectFromTotal = parseInt(window.learner[name].SelfCorrectFromTotal[learnerID]);
 		window.learner[name].current.SelfCorrectFromMax = parseInt(window.learner[name].SelfCorrectFromMax[learnerID]);
@@ -498,18 +611,123 @@ window.learner.getAllOutcomes = function (multiplier = 200, startAt = 0) {
 	}
 }
 
-window.learner.getAllTotals = function () {
-	window.learner.setAllTotalsAndAverages();
+// Logs the stats for current learner patterns to the console, if they have at least [minimumPredictions] and the sum must be 1% or more of the predictions, else it is likely to not be a good predictor
+window.learner.displayCurrentIDStats = function (minimumPredictions = 2, minimumSumPercentOfPred = 0.0001,collapsedGroup=true, dontCountNPercWrong=1.09) {
+	let predictionDivider = 1 / minimumSumPercentOfPred;
+	if (window.learner.maxWrong>0){
+		dontCountNPercWrong=window.learner.maxWrong;
+	}
+	collapsedGroup==false?console.group(window.learner.learners.length + ' 2x Learners'):console.groupCollapsed(window.learner.learners.length + ' 2x Learners');
+	for (var i = 0; i < window.learner.learners.length; i++) {
+		let name = window.learner.learners[i];
+		let N=name;
+		if (window.learner[name].ID == null) {
+			continue
+		}
+		typeof window.learner[name].REQEVAL=="undefined"?window.learner[name].REQEVAL="(1+1==2)":null;
+		if ((dontCountNPercWrong>0 && ((window.learner[name].current.totNopes/window.learner[name].current.totYups)>=dontCountNPercWrong)) || (eval(window.learner[name].REQEVAL)==false) || (window.learner[name].ID == null) || (crashes.history.length < window.learner[name].HistoryRequired) || (player.numGamesPlayed < window.learner[name].GamesPlayedRequired)) {
+			continue
+		}
+		let learnerID=window.learner[name].ID;
+		let PID=window.learner[name].ID;
+		
+		typeof window.learner[name].ActualPredictions == "undefined" ? window.learner[name].ActualPredictions = []:null;
+		typeof window.learner[name].CorrectCount == "undefined" ? window.learner[name].CorrectCount = []:null;
+		typeof window.learner[name].CorrectTotal == "undefined" ? window.learner[name].CorrectTotal = []:null;
+		typeof window.learner[name].CorrectMax == "undefined" ? window.learner[name].CorrectMax = []:null;
+		typeof window.learner[name].IncorrectCount == "undefined" ? window.learner[name].IncorrectCount = []:null;
+		typeof window.learner[name].IncorrectTotal == "undefined" ? window.learner[name].IncorrectTotal = []:null;
+		typeof window.learner[name].IncorrectMax == "undefined" ? window.learner[name].IncorrectMax = []:null;
+		
+		typeof window.learner[name].ActualPredictions[learnerID] == "undefined" ? window.learner[name].ActualPredictions[learnerID] = null:null;
+		typeof window.learner[name].CorrectCount[learnerID] == "undefined" ? window.learner[name].CorrectCount[learnerID] = 0:null;
+		typeof window.learner[name].CorrectTotal[learnerID] == "undefined" ? window.learner[name].CorrectTotal[learnerID] = 0:null;
+		typeof window.learner[name].CorrectMax[learnerID] == "undefined" ? window.learner[name].CorrectMax[learnerID] = 0:null;
+		typeof window.learner[name].IncorrectCount[learnerID] == "undefined" ? window.learner[name].IncorrectCount[learnerID] =0:null;
+		typeof window.learner[name].IncorrectTotal[learnerID] == "undefined" ? window.learner[name].IncorrectTotal[learnerID] =0:null;
+		typeof window.learner[name].IncorrectMax[learnerID] == "undefined" ? window.learner[name].IncorrectMax[learnerID] =0:null;
+		
+		typeof window.learner[name].TotalSums == "undefined"?window.learner[name].TotalSums =[]:null;
+		typeof window.learner[name].TotalSums[learnerID] == "undefined"?window.learner[name].TotalSums[learnerID] =((window.learner[name].Outcomes[learnerID]*2)-window.learner[name].Predictions[learnerID]):null;
+		
+		typeof window.learner[name].CorrectedSums== "undefined" ?window.learner[name].CorrectedSums = []:null;
+		typeof window.learner[name].CorrectedSums[learnerID]== "undefined" ?window.learner[name].CorrectedSums[learnerID] = 0:null;
+		typeof window.learner[name].Outcomes[window.learner[name].ID] == "undefined" ? window.learner[name].Outcomes[window.learner[name].ID] = 0 : null;
+		typeof window.learner[name].Predictions[window.learner[name].ID] == "undefined" ? window.learner[name].Predictions[window.learner[name].ID] = 0 : null;
+		typeof window.learner[name].Sums[window.learner[name].ID] == "undefined" ? window.learner[name].Sums[window.learner[name].ID] = 0 : null;
+		typeof window.learner[name].fuzzy == "undefined" ? window.learner[name].fuzzy = 0.5 : null;
+		typeof window.learner[name].Fuzz == "undefined" ? window.learner[name].Fuzz = [] : null;
+		typeof window.learner[name].Fuzz[window.learner[name].ID] == "undefined" ? window.learner[name].Fuzz[window.learner[name].ID] = 0.5 : null;
+		if (window.isNaN(window.learner[name].fuzzy)==true) {
+			window.learner[name].fuzzy = 0.5;
+		}
+		if (window.isNaN(window.learner[name].Fuzz[learnerID])==true) {
+			window.learner[name].Fuzz[learnerID] = 0.5;
+		}
+		let numPredictions = window.learner[name].Predictions[window.learner[name].ID];
+		let sum = window.learner[name].Sums[window.learner[name].ID];
+		let sumReq = numPredictions / predictionDivider;
+		if ((numPredictions >= minimumPredictions) && ((Math.abs(sum)) >= sumReq)) {
+			let godlycolor = "white";
+			window.learner[name].Sums[window.learner[name].ID] >= 1 ? godlycolor = "Yellow;font-weight:Normal;font-style: normal" : null;
+			window.learner[name].Sums[window.learner[name].ID] >= 2 ? godlycolor = "GreenYellow;font-weight:Normal;font-style: normal" : null;
+			window.learner[name].Sums[window.learner[name].ID] >= 4 ? godlycolor = "YellowGreen;font-weight:Normal;font-style: normal" : null;
+			window.learner[name].Sums[window.learner[name].ID] >= 8 ? godlycolor = "Lime;font-weight:Normal;font-style: normal" : null;
+			window.learner[name].Sums[window.learner[name].ID] <= -1 ? godlycolor = "Yellow;font-weight:Normal;font-style: normal" : null;
+			window.learner[name].Sums[window.learner[name].ID] <= -2 ? godlycolor = "Orange;font-weight:Normal;font-style: normal" : null;
+			window.learner[name].Sums[window.learner[name].ID] <= -4 ? godlycolor = "OrangeRed;font-weight:Normal;font-style: normal" : null;
+			window.learner[name].Sums[window.learner[name].ID] <= -8 ? godlycolor = "Crimson;font-weight:Normal;font-style: normal" : null;
+			(window.learner[name].IncorrectMax[window.learner[name].ID] >window.learner[name].CorrectMax[window.learner[name].ID])? godlycolor += ";font-style: italic;font-weight:Normal" : null;
+			(window.learner[name].IncorrectTotal[window.learner[name].ID] >window.learner[name].CorrectTotal[window.learner[name].ID])? godlycolor += ";font-style: italic;font-weight:Normal" : null;
+			(window.learner[name].IncorrectMax[window.learner[name].ID] >window.learner[name].CorrectMax[window.learner[name].ID] && window.learner[name].IncorrectTotal[window.learner[name].ID] >window.learner[name].CorrectTotal[window.learner[name].ID])? godlycolor += ";font-style: italic;font-weight:Bold" : null;
+			
+			let displayNameA=(name.replace('Gen','G').replace(/_/g,'').replace('medians','Mds').replace('Medians','Mds').replace('Median','Md').replace('median','Md').replace('PSum','Ps').replace('Psum','Ps').replace('psum','Ps').replace('quad','Q').replace('gt','>').replace('lt','<').replace('Wins','Ws').replace('Losses','Ls').replace('Winning','W').replace('Losing','L').replace('Won','W').replace('Lost','L').replace('Lose','L').replace('Increasing','^').replace('Rising','^').replace('Accel','Acl').replace('Win','W').replace('Loss','L').replace('Streak','Sk').replace('Curr','Cur').replace('Count','#').replace('eq','=').replace('med','Md').replace('meds','Md').replace('Med','Md').replace('Meds','Md'));
+			let slicedN=name.split('_');
+			let displayNameB=displayNameA.slice(0,2);
+			for (var s=1;s<slicedN.length;s++){
+			   displayNameB+=slicedN[s].slice(0,4);
+			}
+			let displayNameC=(displayNameA.slice(0,2))+'_'+(name.slice(Math.floor(name.length/3),Math.floor(name.length/3)+6))+'_'+(displayNameA.slice(-4));
+			let useDname=name;
+			
+			if (name.length<=14){
+				useDname=name;
+			} else if (displayNameA.length<=14){
+				useDname=displayNameA;
+			} else if (displayNameB.length<=14){
+				useDname=displayNameB;
+			} else {
+				useDname=displayNameC;
+			}
+			useDname=name;
+			let spacing1=((' ').repeat(1));
+			console.log(`%c${useDname}${spacing1}#${window.learner[name].ID} ≼ 2x ${(((window.learner[name].Outcomes[window.learner[name].ID])/(window.learner[name].Predictions[window.learner[name].ID]))*100).toFixed(1)}% ~ (FY/FZ: ${(window.learner[name].fuzzy).toFixed(2)}/${(window.learner[name].Fuzz[window.learner[name].ID]).toFixed(2)}) ~ (Yup/Nope(Tot:Max): ${window.learner[name].CorrectCount[window.learner[name].ID]} (${window.learner[name].CorrectTotal[window.learner[name].ID]}:${window.learner[name].CorrectMax[window.learner[name].ID]}) / ${window.learner[name].IncorrectCount[window.learner[name].ID]} (${window.learner[name].IncorrectTotal[window.learner[name].ID]}:${window.learner[name].IncorrectMax[window.learner[name].ID]})) (SUM: ${window.learner[name].Sums[window.learner[name].ID]}) (CSUM: ${window.learner[name].CorrectedSums[window.learner[name].ID]}) (TSUM: ${window.learner[name].TotalSums[window.learner[name].ID]}) `, 'color:' + godlycolor);
+		}
+
+	}
+	console.groupEnd(window.learner.learners.length + ' 2x Learners');
+}
+
+window.learner.getAllTotals = function (minimumPredictions = 2, minimumSumPercentOfPred = 0.0001, dontCountNPercWrong=1.09) {
+	if (window.learner.maxWrong>0){
+		dontCountNPercWrong=window.learner.maxWrong;
+	}
+	window.learner.setAllTotalsAndAverages(minimumPredictions,minimumSumPercentOfPred,dontCountNPercWrong);
 	return window.learner.total
 }
 
-window.learner.getAllAverages = function () {
-	window.learner.setAllTotalsAndAverages();
+window.learner.getAllAverages = function (minimumPredictions = 2, minimumSumPercentOfPred = 0.0001, dontCountNPercWrong=1.09) {
+	if (window.learner.maxWrong>0){
+		dontCountNPercWrong=window.learner.maxWrong;
+	}
+	window.learner.setAllTotalsAndAverages(minimumPredictions,minimumSumPercentOfPred,dontCountNPercWrong);;
 	return window.learner.average
 }
 
-window.learner.setAllTotalsAndAverages=function(minimumPredictions = 2, minimumSumPercentOfPred = 0.0001){
-
+window.learner.setAllTotalsAndAverages=function(minimumPredictions = 2, minimumSumPercentOfPred = 0.0001, dontCountNPercWrong=1.09){
+	if (window.learner.maxWrong>0){
+		dontCountNPercWrong=window.learner.maxWrong;
+	}
 	window.learner.average.CorrectCount=0;
 	window.learner.average.CorrectedSums=0;
 	window.learner.average.CorrectMax=0;
@@ -521,6 +739,10 @@ window.learner.setAllTotalsAndAverages=function(minimumPredictions = 2, minimumS
 	window.learner.average.Outcomes=0;
 	window.learner.average.Predictions=0;
 	window.learner.average.Sums=0;
+	
+	window.learner.average.TotalSums=0;
+	
+	window.learner.total.TotalSums=0;
 	window.learner.total.CorrectCount=0;
 	window.learner.total.CorrectedSums=0;
 	window.learner.total.CorrectMax=0;
@@ -532,13 +754,33 @@ window.learner.setAllTotalsAndAverages=function(minimumPredictions = 2, minimumS
 	window.learner.total.Outcomes=0;
 	window.learner.total.Predictions=0;
 	window.learner.total.Sums=0;
-		
+
+	window.learner.total.PercentTrue=0;
+	window.learner.average.PercentTrue=0;
+	window.learner.total.curYups=0;
+	window.learner.total.curNopes=0;
+	window.learner.average.curYups=0;
+	window.learner.average.curNopes=0;
+	
+	window.learner.total.maxYups=0;
+	window.learner.total.maxNopes=0;
+	window.learner.average.maxYups=0;
+	window.learner.average.maxNopes=0;
+	
+	window.learner.total.totYups=0;
+	window.learner.total.totNopes=0;
+	window.learner.average.totYups=0;
+	window.learner.average.totNopes=0;
 	let totalLearnersUsed=0;
 	let totalPositiveSumLearners=0;
+	let totalPositiveTSumLearners=0;
+	let totalPositiveCSumLearners=0;
 	let predictionDivider = 1 / minimumSumPercentOfPred;
 	for (var i = 0; i < window.learner.learners.length; i++) {
 		let N=window.learner.learners[i];
-		if ((eval(window.learner[N].REQEVAL)==false) || (window.learner[N].ID == null) || (crashes.history.length < window.learner[N].HistoryRequired) || (player.numGamesPlayed < window.learner[N].GamesPlayedRequired)) {
+		let name=window.learner.learners[i];
+		
+		if ((dontCountNPercWrong>0 && ((window.learner[name].current.totNopes/window.learner[name].current.totYups)>=dontCountNPercWrong)) || (eval(window.learner[N].REQEVAL)==false) || (window.learner[N].ID == null) || (crashes.history.length < window.learner[N].HistoryRequired) || (player.numGamesPlayed < window.learner[N].GamesPlayedRequired)) {
 			continue
 		}
 
@@ -547,9 +789,13 @@ window.learner.setAllTotalsAndAverages=function(minimumPredictions = 2, minimumS
 		let sumReq = numPredictions / predictionDivider;
 		if ((numPredictions >= minimumPredictions) && ((Math.abs(sum)) >= sumReq)) {
 			totalLearnersUsed++
-			window.learner[N].current.Sum>=0?totalPositiveSumLearners++:null;
+			window.learner[N].current.Sum>=1?totalPositiveSumLearners++:null;
+			window.learner[N].current.CorrectedSums>=1?totalPositiveCSumLearners++:null;
+			window.learner[N].current.TotalSums>=1?totalPositiveTSumLearners++:null;
+			
 			window.isNaN(parseInt(window.learner[N].current.CorrectCount))==false?window.learner.total.CorrectCount+=parseInt(window.learner[N].current.CorrectCount):null;
 			window.isNaN(parseInt(window.learner[N].current.CorrectedSums))==false?window.learner.total.CorrectedSums+=parseInt(window.learner[N].current.CorrectedSums):null;
+			window.isNaN(parseFloat(window.learner[N].current.TotalSums))==false?window.learner.total.TotalSums+=parseFloat(window.learner[N].current.TotalSums):null;
 			window.isNaN(parseInt(window.learner[N].current.CorrectMax))==false?window.learner.total.CorrectMax+=parseInt(window.learner[N].current.CorrectMax):null;
 			window.isNaN(parseInt(window.learner[N].current.CorrectTotal))==false?window.learner.total.CorrectTotal+=parseInt(window.learner[N].current.CorrectTotal):null;
 			window.isNaN(parseFloat(window.learner[N].current.PercentTrue))==false?window.learner.total.PercentTrue+=parseFloat(window.learner[N].current.PercentTrue):null;
@@ -559,15 +805,27 @@ window.learner.setAllTotalsAndAverages=function(minimumPredictions = 2, minimumS
 			window.isNaN(parseInt(window.learner[N].current.Outcomes))==false?window.learner.total.Outcomes+=parseInt(window.learner[N].current.Outcomes):null;
 			window.isNaN(parseInt(window.learner[N].current.Predictions))==false?window.learner.total.Predictions+=parseInt(window.learner[N].current.Predictions):null;
 			window.isNaN(parseInt(window.learner[N].current.Sum))==false?window.learner.total.Sums+=parseInt(window.learner[N].current.Sum):null;
+			window.isNaN(parseInt(window.learner[N].current.curYups))==false?window.learner.total.curYups+=parseInt(window.learner[N].current.curYups):null;
+			window.isNaN(parseInt(window.learner[N].current.curNopes))==false?window.learner.total.curNopes+=parseInt(window.learner[N].current.curNopes):null;
+			window.isNaN(parseInt(window.learner[N].current.totYups))==false?window.learner.total.totYups+=parseInt(window.learner[N].current.totYups):null;
+			window.isNaN(parseInt(window.learner[N].current.totNopes))==false?window.learner.total.totNopes+=parseInt(window.learner[N].current.totNopes):null;
+			window.isNaN(parseInt(window.learner[N].current.maxYups))==false?window.learner.total.maxYups+=parseInt(window.learner[N].current.maxYups):null;
+			window.isNaN(parseInt(window.learner[N].current.maxNopes))==false?window.learner.total.maxNopes+=parseInt(window.learner[N].current.maxNopes):null;
+			
 		}
 	}
 	window.learner.total.PositiveSumLearners=totalPositiveSumLearners;
+	window.learner.total.PositiveCSumLearners=totalPositiveCSumLearners;
+	window.learner.total.PositiveTSumLearners=totalPositiveTSumLearners;
 	window.learner.total.learnersUsed=totalLearnersUsed;
 	window.learner.total.NegativeSumLearners=(totalLearnersUsed-totalPositiveSumLearners);
+	window.learner.total.NegativeCSumLearners=(totalLearnersUsed-totalPositiveCSumLearners);;
+	window.learner.total.NegativeTSumLearners=(totalLearnersUsed-totalPositiveTSumLearners);;
 	window.learner.total.learners=window.learner.learners.length;
 	
 	window.learner.average.CorrectCount=(window.learner.total.CorrectCount/totalLearnersUsed);
 	window.learner.average.CorrectedSums=(window.learner.total.CorrectedSums/totalLearnersUsed);
+	window.learner.average.TotalSums=(window.learner.total.TotalSums/totalLearnersUsed);
 	window.learner.average.CorrectMax=(window.learner.total.CorrectMax/totalLearnersUsed);
 	window.learner.average.CorrectTotal=(window.learner.total.CorrectTotal/totalLearnersUsed);
 	window.learner.average.PercentTrue=(window.learner.total.PercentTrue/totalLearnersUsed);
@@ -577,6 +835,70 @@ window.learner.setAllTotalsAndAverages=function(minimumPredictions = 2, minimumS
 	window.learner.average.Outcomes=(window.learner.total.Outcomes/totalLearnersUsed);
 	window.learner.average.Predictions=(window.learner.total.Predictions/totalLearnersUsed);
 	window.learner.average.Sums=(window.learner.total.Sums/totalLearnersUsed);
+	window.learner.average.PercentTrue=(window.learner.total.PercentTrue/totalLearnersUsed);
+	
+	window.learner.average.curYups=(window.learner.total.curYups/totalLearnersUsed);
+	window.learner.average.curNopes=(window.learner.total.curNopes/totalLearnersUsed);
+	window.learner.average.totYups=(window.learner.total.totYups/totalLearnersUsed);
+	window.learner.average.totNopes=(window.learner.total.totNopes/totalLearnersUsed);
+	window.learner.average.maxYups=(window.learner.total.maxYups/totalLearnersUsed);
+	window.learner.average.maxNopes=(window.learner.total.maxNopes/totalLearnersUsed);
+	
+			
+}
+
+//return number of learners with the minimum predictions/sum
+window.learner.getNLearners = function (minimumPredictions = 2, minimumSumPercentOfPred = 0.0001, dontCountNPercWrong=1.09) {
+	if (window.learner.maxWrong>0){
+		dontCountNPercWrong=window.learner.maxWrong;
+	}
+	let SumSum = 0;
+	let predictionDivider = 1 / minimumSumPercentOfPred;
+	for (var i = 0; i < window.learner.learners.length; i++) {
+		let name = window.learner.learners[i];
+		let N=name;
+		if ((dontCountNPercWrong>0 && ((window.learner[name].current.totNopes/window.learner[name].current.totYups)>=dontCountNPercWrong)) || (eval(window.learner[name].REQEVAL)==false) || (window.learner[name].ID == null) || (crashes.history.length < window.learner[name].HistoryRequired) || (player.numGamesPlayed < window.learner[name].GamesPlayedRequired)) {
+			continue
+		}
+		typeof window.learner[name].Outcomes[window.learner[name].ID] == "undefined" ? window.learner[name].Outcomes[window.learner[name].ID] = 0 : null;
+		typeof window.learner[name].Predictions[window.learner[name].ID] == "undefined" ? window.learner[name].Predictions[window.learner[name].ID] = 0 : null;
+		typeof window.learner[name].Sums[window.learner[name].ID] == "undefined" ? window.learner[name].Sums[window.learner[name].ID] = 0 : null;
+		let numPredictions = window.learner[name].Predictions[window.learner[name].ID];
+		let sum = window.learner[name].Sums[window.learner[name].ID];
+		let sumReq = numPredictions / predictionDivider;
+		if ((numPredictions >= minimumPredictions) && ((Math.abs(sum)) >= sumReq)) {
+			SumSum++
+		}
+		//console.log(`%c ${name} Pattern ID: ${window.learner[name].ID} THIS PATTERN PRECEDED A 2x ${(window.learner[name].Outcomes[window.learner[name].ID])}/${(window.learner[name].Predictions[window.learner[name].ID])} TIMES (SUM: ${window.learner[name].Sums[window.learner[name].ID]})`,'color:skyblue');
+	}
+	return SumSum
+}
+
+//returns an array of learner names with the minimum predictions/sum
+window.learner.getLearnerNames = function (minimumPredictions = 2, minimumSumPercentOfPred = 0.0001, dontCountNPercWrong=1.09) {
+	if (window.learner.maxWrong>0){
+		dontCountNPercWrong=window.learner.maxWrong;
+	}
+	let LNames = [];
+	let predictionDivider = 1 / minimumSumPercentOfPred;
+	for (var i = 0; i < window.learner.learners.length; i++) {
+		let name = window.learner.learners[i];
+		let N=name;
+		if ((dontCountNPercWrong>0 && ((window.learner[name].current.totNopes/window.learner[name].current.totYups)>=dontCountNPercWrong)) || (eval(window.learner[name].REQEVAL)==false) || (window.learner[name].ID == null) || (crashes.history.length < window.learner[name].HistoryRequired) || (player.numGamesPlayed < window.learner[name].GamesPlayedRequired)) {
+			continue
+		}
+		typeof window.learner[name].Outcomes[window.learner[name].ID] == "undefined" ? window.learner[name].Outcomes[window.learner[name].ID] = 0 : null;
+		typeof window.learner[name].Predictions[window.learner[name].ID] == "undefined" ? window.learner[name].Predictions[window.learner[name].ID] = 0 : null;
+		typeof window.learner[name].Sums[window.learner[name].ID] == "undefined" ? window.learner[name].Sums[window.learner[name].ID] = 0 : null;
+		let numPredictions = window.learner[name].Predictions[window.learner[name].ID];
+		let sum = window.learner[name].Sums[window.learner[name].ID];
+		let sumReq = numPredictions / predictionDivider;
+		if ((numPredictions >= minimumPredictions) && ((Math.abs(sum)) >= sumReq)) {
+			LNames.push(name);
+		}
+		//console.log(`%c ${name} Pattern ID: ${window.learner[name].ID} THIS PATTERN PRECEDED A 2x ${(window.learner[name].Outcomes[window.learner[name].ID])}/${(window.learner[name].Predictions[window.learner[name].ID])} TIMES (SUM: ${window.learner[name].Sums[window.learner[name].ID]})`,'color:skyblue');
+	}
+	return LNames
 }
 
 
@@ -601,10 +923,6 @@ window.learner.setActualPredictions = function () {
 	}
 }
 
-
-
-
-
 // resets all Fuzz for all learners and all their patterns (Fuzz and fuzzy)
 window.learner.resetAllFuzz = function () {
 	var tempnames = window.learner.getLearnerNames();
@@ -622,143 +940,6 @@ window.learner.resetAllFuzz = function () {
 	}
 }
 
-//return number of learners with the minimum predictions/sum
-window.learner.getNLearners = function (minimumPredictions = 2, minimumSumPercentOfPred = 0.0001) {
-	let SumSum = 0;
-	let predictionDivider = 1 / minimumSumPercentOfPred;
-	for (var i = 0; i < window.learner.learners.length; i++) {
-		let name = window.learner.learners[i];
-		
-		if ((eval(window.learner[name].REQEVAL)==false) || (window.learner[name].ID == null) || (crashes.history.length < window.learner[name].HistoryRequired) || (player.numGamesPlayed < window.learner[name].GamesPlayedRequired)) {
-			continue
-		}
-		typeof window.learner[name].Outcomes[window.learner[name].ID] == "undefined" ? window.learner[name].Outcomes[window.learner[name].ID] = 0 : null;
-		typeof window.learner[name].Predictions[window.learner[name].ID] == "undefined" ? window.learner[name].Predictions[window.learner[name].ID] = 0 : null;
-		typeof window.learner[name].Sums[window.learner[name].ID] == "undefined" ? window.learner[name].Sums[window.learner[name].ID] = 0 : null;
-		let numPredictions = window.learner[name].Predictions[window.learner[name].ID];
-		let sum = window.learner[name].Sums[window.learner[name].ID];
-		let sumReq = numPredictions / predictionDivider;
-		if ((numPredictions >= minimumPredictions) && ((Math.abs(sum)) >= sumReq)) {
-			SumSum++
-		}
-		//console.log(`%c ${name} Pattern ID: ${window.learner[name].ID} THIS PATTERN PRECEDED A 2x ${(window.learner[name].Outcomes[window.learner[name].ID])}/${(window.learner[name].Predictions[window.learner[name].ID])} TIMES (SUM: ${window.learner[name].Sums[window.learner[name].ID]})`,'color:skyblue');
-	}
-	return SumSum
-}
-
-//returns an array of learner names with the minimum predictions/sum
-window.learner.getLearnerNames = function (minimumPredictions = 2, minimumSumPercentOfPred = 0.0001) {
-	let LNames = [];
-	let predictionDivider = 1 / minimumSumPercentOfPred;
-	for (var i = 0; i < window.learner.learners.length; i++) {
-		let name = window.learner.learners[i];
-		
-		if ((eval(window.learner[name].REQEVAL)==false) || (window.learner[name].ID == null) || (crashes.history.length < window.learner[name].HistoryRequired) || (player.numGamesPlayed < window.learner[name].GamesPlayedRequired)) {
-			continue
-		}
-		typeof window.learner[name].Outcomes[window.learner[name].ID] == "undefined" ? window.learner[name].Outcomes[window.learner[name].ID] = 0 : null;
-		typeof window.learner[name].Predictions[window.learner[name].ID] == "undefined" ? window.learner[name].Predictions[window.learner[name].ID] = 0 : null;
-		typeof window.learner[name].Sums[window.learner[name].ID] == "undefined" ? window.learner[name].Sums[window.learner[name].ID] = 0 : null;
-		let numPredictions = window.learner[name].Predictions[window.learner[name].ID];
-		let sum = window.learner[name].Sums[window.learner[name].ID];
-		let sumReq = numPredictions / predictionDivider;
-		if ((numPredictions >= minimumPredictions) && ((Math.abs(sum)) >= sumReq)) {
-			LNames.push(name);
-		}
-		//console.log(`%c ${name} Pattern ID: ${window.learner[name].ID} THIS PATTERN PRECEDED A 2x ${(window.learner[name].Outcomes[window.learner[name].ID])}/${(window.learner[name].Predictions[window.learner[name].ID])} TIMES (SUM: ${window.learner[name].Sums[window.learner[name].ID]})`,'color:skyblue');
-	}
-	return LNames
-}
-
-
-// Logs the stats for current learner patterns to the console, if they have at least [minimumPredictions] and the sum must be 1% or more of the predictions, else it is likely to not be a good predictor
-window.learner.displayCurrentIDStats = function (minimumPredictions = 2, minimumSumPercentOfPred = 0.0001) {
-	let predictionDivider = 1 / minimumSumPercentOfPred;
-	console.group(window.learner.learners.length + ' 2x Learners');
-	for (var i = 0; i < window.learner.learners.length; i++) {
-		let name = window.learner.learners[i];
-		if (window.learner[name].ID == null) {
-			continue
-		}
-		typeof window.learner[name].REQEVAL=="undefined"?window.learner[name].REQEVAL="(1+1==2)":null;
-		if ((eval(window.learner[name].REQEVAL)==false) || (window.learner[name].ID == null) || (crashes.history.length < window.learner[name].HistoryRequired) || (player.numGamesPlayed < window.learner[name].GamesPlayedRequired)) {
-			continue
-		}
-		let learnerID=window.learner[name].ID;
-		let PID=window.learner[name].ID;
-		
-		typeof window.learner[name].ActualPredictions == "undefined" ? window.learner[name].ActualPredictions = []:null;
-		typeof window.learner[name].CorrectCount == "undefined" ? window.learner[name].CorrectCount = []:null;
-		typeof window.learner[name].CorrectTotal == "undefined" ? window.learner[name].CorrectTotal = []:null;
-		typeof window.learner[name].CorrectMax == "undefined" ? window.learner[name].CorrectMax = []:null;
-		typeof window.learner[name].IncorrectCount == "undefined" ? window.learner[name].IncorrectCount = []:null;
-		typeof window.learner[name].IncorrectTotal == "undefined" ? window.learner[name].IncorrectTotal = []:null;
-		typeof window.learner[name].IncorrectMax == "undefined" ? window.learner[name].IncorrectMax = []:null;
-		
-		typeof window.learner[name].ActualPredictions[learnerID] == "undefined" ? window.learner[name].ActualPredictions[learnerID] = null:null;
-		typeof window.learner[name].CorrectCount[learnerID] == "undefined" ? window.learner[name].CorrectCount[learnerID] = 0:null;
-		typeof window.learner[name].CorrectTotal[learnerID] == "undefined" ? window.learner[name].CorrectTotal[learnerID] = 0:null;
-		typeof window.learner[name].CorrectMax[learnerID] == "undefined" ? window.learner[name].CorrectMax[learnerID] = 0:null;
-		typeof window.learner[name].IncorrectCount[learnerID] == "undefined" ? window.learner[name].IncorrectCount[learnerID] =0:null;
-		typeof window.learner[name].IncorrectTotal[learnerID] == "undefined" ? window.learner[name].IncorrectTotal[learnerID] =0:null;
-		typeof window.learner[name].IncorrectMax[learnerID] == "undefined" ? window.learner[name].IncorrectMax[learnerID] =0:null;
-		
-		typeof window.learner[name].CorrectedSums== "undefined" ?window.learner[name].CorrectedSums = []:null;
-		typeof window.learner[name].CorrectedSums[learnerID]== "undefined" ?window.learner[name].CorrectedSums[learnerID] = 0:null;
-		typeof window.learner[name].Outcomes[window.learner[name].ID] == "undefined" ? window.learner[name].Outcomes[window.learner[name].ID] = 0 : null;
-		typeof window.learner[name].Predictions[window.learner[name].ID] == "undefined" ? window.learner[name].Predictions[window.learner[name].ID] = 0 : null;
-		typeof window.learner[name].Sums[window.learner[name].ID] == "undefined" ? window.learner[name].Sums[window.learner[name].ID] = 0 : null;
-		typeof window.learner[name].fuzzy == "undefined" ? window.learner[name].fuzzy = 0.5 : null;
-		typeof window.learner[name].Fuzz == "undefined" ? window.learner[name].Fuzz = [] : null;
-		typeof window.learner[name].Fuzz[window.learner[name].ID] == "undefined" ? window.learner[name].Fuzz[window.learner[name].ID] = 0.5 : null;
-		if (window.isNaN(window.learner[name].fuzzy)==true) {
-			window.learner[name].fuzzy = 0.5;
-		}
-		if (window.isNaN(window.learner[name].Fuzz[learnerID])==true) {
-			window.learner[name].Fuzz[learnerID] = 0.5;
-		}
-		let numPredictions = window.learner[name].Predictions[window.learner[name].ID];
-		let sum = window.learner[name].Sums[window.learner[name].ID];
-		let sumReq = numPredictions / predictionDivider;
-		if ((numPredictions >= minimumPredictions) && ((Math.abs(sum)) >= sumReq)) {
-			let godlycolor = "white";
-			window.learner[name].Sums[window.learner[name].ID] >= 1 ? godlycolor = "Yellow;font-weight:Normal;font-style: normal;Background-Color:DarkBlue" : null;
-			window.learner[name].Sums[window.learner[name].ID] >= 2 ? godlycolor = "GreenYellow;font-weight:Normal;font-style: normal;Background-Color:DarkBlue" : null;
-			window.learner[name].Sums[window.learner[name].ID] >= 4 ? godlycolor = "YellowGreen;font-weight:Normal;font-style: normal;Background-Color:DarkBlue" : null;
-			window.learner[name].Sums[window.learner[name].ID] >= 8 ? godlycolor = "Lime;font-weight:Normal;font-style: normal;Background-Color:DarkBlue" : null;
-			window.learner[name].Sums[window.learner[name].ID] <= -1 ? godlycolor = "Yellow;font-weight:Normal;font-style: normal;Background-Color:DarkBlue" : null;
-			window.learner[name].Sums[window.learner[name].ID] <= -2 ? godlycolor = "Orange;font-weight:Normal;font-style: normal;Background-Color:DarkBlue" : null;
-			window.learner[name].Sums[window.learner[name].ID] <= -4 ? godlycolor = "OrangeRed;font-weight:Normal;font-style: normal;Background-Color:DarkBlue" : null;
-			window.learner[name].Sums[window.learner[name].ID] <= -8 ? godlycolor = "Crimson;font-weight:Normal;font-style: normal;Background-Color:DarkBlue" : null;
-			(window.learner[name].IncorrectMax[window.learner[name].ID] >window.learner[name].CorrectMax[window.learner[name].ID])? godlycolor += ";Background-Color:Maroon;font-style: italic;font-weight:Normal" : null;
-			(window.learner[name].IncorrectTotal[window.learner[name].ID] >window.learner[name].CorrectTotal[window.learner[name].ID])? godlycolor += ";Background-Color:Maroon;font-style: italic;font-weight:Normal" : null;
-			(window.learner[name].IncorrectMax[window.learner[name].ID] >window.learner[name].CorrectMax[window.learner[name].ID] && window.learner[name].IncorrectTotal[window.learner[name].ID] >window.learner[name].CorrectTotal[window.learner[name].ID])? godlycolor += ";Background-Color:Maroon;font-style: italic;font-weight:Bold" : null;
-			
-			let displayNameA=(name.replace('Gen','G').replace(/_/g,'').replace('medians','Mds').replace('Medians','Mds').replace('Median','Md').replace('median','Md').replace('PSum','Ps').replace('Psum','Ps').replace('psum','Ps').replace('quad','Q').replace('gt','>').replace('lt','<').replace('Wins','Ws').replace('Losses','Ls').replace('Winning','W').replace('Losing','L').replace('Won','W').replace('Lost','L').replace('Lose','L').replace('Increasing','^').replace('Rising','^').replace('Accel','Acl').replace('Win','W').replace('Loss','L').replace('Streak','Sk').replace('Curr','Cur').replace('Count','#').replace('eq','=').replace('med','Md').replace('meds','Md').replace('Med','Md').replace('Meds','Md'));
-			let slicedN=name.split('_');
-			let displayNameB=displayNameA.slice(0,2);
-			for (var s=1;s<slicedN.length;s++){
-			   displayNameB+=slicedN[s].slice(0,4);
-			}
-			let displayNameC=(displayNameA.slice(0,2))+'_'+(name.slice(Math.floor(name.length/3),Math.floor(name.length/3)+6))+'_'+(displayNameA.slice(-4));
-			let useDname=name;
-			
-			if (name.length==14){
-				useDname=name;
-			} else if (displayNameA.length<=14){
-				useDname=displayNameA;
-			} else if (displayNameB.length<=14){
-				useDname=displayNameB;
-			} else {
-				useDname=displayNameC;
-			}
-			let spacing1=((' ').repeat((1+(14-useDname.length))));
-			console.log(`%c${useDname}${spacing1}#${window.learner[name].ID} PRECEDED 2x ${(window.learner[name].Outcomes[window.learner[name].ID])}/${(window.learner[name].Predictions[window.learner[name].ID])} (SUM: ${window.learner[name].Sums[window.learner[name].ID]}) ~ (FY/FZ: ${(window.learner[name].fuzzy).toFixed(2)}/${(window.learner[name].Fuzz[window.learner[name].ID]).toFixed(2)}) ~ (C(T:M)/I(T:M): ${window.learner[name].CorrectCount[window.learner[name].ID]} (${window.learner[name].CorrectTotal[window.learner[name].ID]} : ${window.learner[name].CorrectMax[window.learner[name].ID]}) / ${window.learner[name].IncorrectCount[window.learner[name].ID]} (${window.learner[name].IncorrectTotal[window.learner[name].ID]} : ${window.learner[name].IncorrectMax[window.learner[name].ID]}))`, 'color:' + godlycolor);
-		}
-
-	}
-	console.groupEnd(window.learner.learners.length + ' 2x Learners');
-}
 
 window.learner.displayCurrentData = function(){
 	let learnerNames = learner.getLearnerNames();
@@ -812,7 +993,7 @@ window.learner.find_suitableSisters = function (learnerName = null, maxLength = 
 	}
 	let name = learnerName;
 	if ((eval(window.learner[name].REQEVAL)==false) || (window.learner[name].ID == null) || (crashes.history.length < window.learner[name].HistoryRequired) || (player.numGamesPlayed < window.learner[name].GamesPlayedRequired)) {
-		continue
+		return false;
 	}
 	let patternLength = window.learner.get_Pattern(name).replace('0b', '').length;
 	window.learner[name].patternLength = patternLength;
@@ -874,7 +1055,9 @@ window.learner.loadLearnersFromLocalStorage = function () {
 }
 
 // ENGINE.ON TRIGGER HANDLERS FOR LEARNER
-window.learner.on_game_starting = function(){
+
+window.learner.on_game_starting = function(data=null){
+	
 	// Load full learner data from local storage if available
 	if (window.learner.loadAttempted==false && window.learner.loaded!=true) {
 		window.learner.loadAttempted=true;
@@ -882,316 +1065,364 @@ window.learner.on_game_starting = function(){
 		if (!window.learner.loaded) {
 			console.log('Couldnt load learners from local storage');
 		}
+	}if (crashes.history.length >= 70) {
+		tools.medianCrunch();
 	}
-	// getAllOutcomes: 
-	//		- Updates learner data based on where the game just crashed, fuzzes, sums, totals, etc.
-	// 		- Sets window.learner[learnerName].current and .previous variables for all active learners - the result comes from that learners current pattern
-	window.learner.getAllOutcomes();
-	// setAllTotalsAndAverages:
-	//		- This will set window.learner.total and window.learner.average amounts, done after getting outcomes and before setting the new ID/Pattern
-	window.learner.setAllTotalsAndAverages();
-	// Save full learner object to local storage stringified
-	window.learner.saveLearnersToLocalStorage();
-	// Set the binary ID's the learners will use for the upcoming game, GET OUTCOMES FIRST!
-	window.learner.setAllID();
+
 	
+	/**/
 }
-window.learner.on_game_started = function(){
-	
-}
-window.learner.on_game_crash = function(){
-	
-}
-window.learner.on_cashed_out = function(){
-	
-}
-window.learner.on_player_bet = function(){
-	
+
+//  A often used function for the learner strats
+tools.get_balance_gamesSinceHighest = function (numGames = null) {
+	// return null if balance history is not being saved, or there is not yet any history
+	if (!tools.is_balance_historySaved() || player.balanceHistory.length == 0) {
+		return null
+	}
+	var balanceHistoryLength = Array.from(Object.keys(player.balanceHistory)).length;
+	numGames == null ? numGames = 1024 : null;
+	numGames>balanceHistoryLength?numGames=balanceHistoryLength-1:null;
+	var bald = [];
+	var highestBalanceNGamesAgo=0
+	var highest = 0;
+	for (var a = 1; a < numGames; a++) {
+		(player.balanceHistory['gid_' + (game.gameID - a)]) > highest ? highestBalanceNGamesAgo=a : null;
+		(player.balanceHistory['gid_' + (game.gameID - a)]) > highest ? highest = (player.balanceHistory['gid_' + (game.gameID - a)]) : null;
+
+	}
+	return {'gamesAgo':highestBalanceNGamesAgo,'balanceWas':highest}
 }
 
 // Strategies built around the 2x pattern learner
 window.learner.strategy=[];
 
 window.learner.strategy[0]=function(){
-	if (crashes.history.length < 72) {
+		if (crashes.history.length >= 34) {
+		// getAllOutcomes: 
+		//		- Updates learner data based on where the game just crashed, fuzzes, sums, totals, etc.
+		// 		- Sets window.learner[learnerName].current and .previous variables for all active learners - the result comes from that learners current pattern
+		console.log('getting learner');
+		window.learner.getAllOutcomes();
+		// setAllTotalsAndAverages:
+		//		- This will set window.learner.total and window.learner.average amounts, done after getting outcomes and before setting the new ID/Pattern
+		window.learner.setAllTotalsAndAverages();
+		// Save full learner object to local storage stringified
+		window.learner.saveLearnersToLocalStorage();
+		// Set the binary ID's the learners will use for the upcoming game, GET OUTCOMES FIRST!
+		window.learner.setAllID();
+	} 
+	let ourBet=100;
+	let ourMultiplier=200;
+	let LSUMS={};
+	let LNAMES=learner.getLearnerNames();
+	let LTOTAL=learner.getAllTotals();
+	let LAVERAGE=learner.getAllAverages();
+	let LPERCENT={};
+	let LFUZZ={};
+	let LMODS={};
+	learner.displayCurrentIDStats();
+	console.log(`LNAMES ~~~~~~~~~~~~~~~~~~~ LNAMES\n${JSON.stringify(LNAMES)}\nLTOTAL ~~~~~~~~~~~~~~~~~~~~~~~~~~~ LTOTAL\n${JSON.stringify(LTOTAL)}\nLAVERAGE ~~~~~~~~~~~~~~~~~~~~~~~ LAVERAGE\n${JSON.stringify(LAVERAGE)}\n`);
+	// Takes a floating point number, returns an integer percent and 1 decimal (EX 85.3%, 128.1%)
+	
+	if (LTOTAL.learnersUsed<2){
 		return {
 			'amount': 0,
-			'multiplier': 0
+			'multiplier':0
 		};
 	}
-	window.tools.medianCrunch(true)
-	if (window.learner.learners.length == 0) {
-		return {
-			'amount': 0,
-			'multiplier': 0
-		};
-	}
-	window.learner.getAllOutcomes();
-	window.learner.setAllTotalsAndAverages();
-	
-	window.learner.saveLearnersToLocalStorage();
-	// Set the binary ID's for all learners, GET OUTCOMES FIRST!
-	window.learner.setAllID();
-	// display learner stats for patterns with at least 4 predictions logged 
-	window.learner.displayCurrentIDStats();
-	let SumSum = window.learner.total.Sums;
-	let nPositive = window.learner.total.PositiveSumLearners;
-	let nTotal = window.learner.total.learnersUsed;
-	let learnerNames = window.learner.getLearnerNames();
-	
-	
-	// Total modifier float
-	
-	// This is the outcome/prediction percentage * 2, added for all learners to a total 
-	let totalPercent = window.learner.total.PercentTrue;
-	let totalFuzz = window.learner.total.Fuzz;
-	let totalFuzzy = window.learner.total.Fuzzy;
-	let avgFuzz = window.learner.average.Fuzz;
-	let avgFuzzy = window.learner.average.Fuzzy;
-	// Average modifier float, 0-2 - This is the outcome/prediction percentage * 2
-	let averagePercent = window.learner.average.PercentTrue;
-	averagePercent*=2;totalPercent*=2;
-	let totalPatterns = window.learner.getAll_numPossiblePatterns();
-	// learners with a positive sum, as a percentage
-	let percentPositive = (nPositive/nTotal);
-	let avgBias = (((averagePercent)) - 1);
-	let totalBias = (((totalPercent).toFixed(0)) - (1 * nTotal));
-	let avgFuzzyFuzz = ((avgFuzz + avgFuzzy) / 2);
-	let sumcolor = "white";
-	if (SumSum > 0) {
-		sumcolor = "Lime";
-	}
-	if (SumSum < 0) {
-		sumcolor = "Orange";
-	}
-	let percentcolor = "white";
-	if (percentPositive > 0.5) {
-		percentcolor = "Lime";
-	}
-	if (percentPositive < 0.5) {
-		percentcolor = "Orange";
-	}
-	let percentcolorb = "white";
-	if (percentPositive > 1) {
-		percentcolorb = "Lime";
-	}
-	if (percentPositive < 1) {
-		percentcolorb = "Orange";
-	}
-	let percentFuzz = "white";
-	if (avgFuzz >= 0.5) {
-		percentFuzz = "Lime";
-	}
-	if (avgFuzz < 0.5) {
-		percentFuzz = "Orange";
-	}
-	let percentFuzzy = "white";
-	if (avgFuzzy >= 0.5) {
-		percentFuzzy = "Lime";
-	}
-	if (avgFuzzy < 0.5) {
-		percentFuzzy = "Orange";
-	}
-	console.log(`%cMachine Learning 2x Strategy ~~ Learning From ${(tools.addCommas(totalPatterns))} Patterns`, 'color:White;font-size:16px;');
-	let tlength = 0;
-	let completePattern = '';
-	/*
-	for (var i=0; i<window.learner.learners.length; i++){
-		let name=window.learner.learners[i];
-		completePattern=(completePattern+(window.learner.get_Pattern(name).replace('0b','')));
-		let patternLength=window.learner.get_Pattern(name).replace('0b','').length;
-		window.learner[name].patternLength=patternLength;
-		tlength+=patternLength;
-	}
-	*/
 
-	//console.log('Total Possible Bot Creatable Strategies: '+tools.addCommas((2**tlength)/1000000000000)+',000,000,000,000'); 
-	//console.log('Complete binary pattern: '+completePattern)
-	console.log(`%cAverage Bias : ${((avgBias*100).toFixed(0))}% ~~~ Total Bias : ${((totalBias*100).toFixed(0))}% `, 'color:' + percentcolorb);
-	console.log(`%cAverage Fuzz : ${(avgFuzz*100).toFixed(0)}% ~~~ Total Fuzz : ${(totalFuzz*100).toFixed(0)}% `, 'color:' + percentFuzz);
-	console.log(`%cAverage Fuzzy: ${(avgFuzzy*100).toFixed(0)}% ~~~ Total Fuzzy: ${(totalFuzzy*100).toFixed(0)}% ~~~ Average Fuzzy Fuzz: ${(((avgFuzz+avgFuzzy)/2)*100).toFixed(0)}% `, 'color:' + percentFuzzy);
-	// Fixed Probability: (((prob(2)+avgFuzz+avgFuzzy+avgFuzzyFuzz)/4)+avgBias)
-	let gtProb = ((((prob(2) + prob(2) + avgFuzz + avgFuzzy + avgFuzzyFuzz + percentPositive) / 6) + avgBias) * averagePercent);
-	let gtMod = gtProb * 2; // 0-2 bet modifier
-	console.log(`%cNormal 2x Probability: ${(prob(2)*100).toFixed(1)}% ~~~~~ Gambletrons 2x Probability: ${(gtProb*100).toFixed(1)}%`, 'color:' + sumcolor);
+	function dispMod(theMod){
+		return (((theMod*100).toFixed(1))+'%');
+	}
+	let highestBalanceNGamesAgo=tools.get_balance_gamesSinceHighest(512); //  {'gamesAgo':highestBalanceNGamesAgo,'balanceWas':highest}
+	let highestBalanceWasNGamesAgo=highestBalanceNGamesAgo.gamesAgo;
+	let highestBalanceWas=highestBalanceNGamesAgo.balanceWas;
+	let highestBalance128NGamesAgo=tools.get_balance_gamesSinceHighest(128); //  {'gamesAgo':highestBalanceNGamesAgo,'balanceWas':highest}
+	let highestBalance128WasNGamesAgo=highestBalance128NGamesAgo.gamesAgo;
+	let highestBalance128Was=highestBalance128NGamesAgo.balanceWas;
+	let highestBalance32NGamesAgo=tools.get_balance_gamesSinceHighest(32); //  {'gamesAgo':highestBalanceNGamesAgo,'balanceWas':highest}
+	let highestBalance32WasNGamesAgo=highestBalance32NGamesAgo.gamesAgo;
+	let highestBalance32Was=highestBalance32NGamesAgo.balanceWas;
+	
+	let percentOfHighestBalance=(highestBalanceWas/player.currentBankroll);
+	let percentOfHighestBalance128=(highestBalance128Was/player.currentBankroll);
+	let percentOfHighestBalance32=(highestBalance32Was/player.currentBankroll);
+	
+	let percentOfLearnersUsed=LTOTAL.learnersUsed/LTOTAL.learners;
+	
+	let percentOfPosSumVsNegSumLearners=(LTOTAL.PositiveSumLearners+1)/(LTOTAL.NegativeSumLearners+1);
+	let percentOfPosSumLearners=LTOTAL.PositiveSumLearners/LTOTAL.learnersUsed;
+	let percentOfNegSumLearners=LTOTAL.NegativeSumLearners/LTOTAL.learnersUsed;
+	let percentOutcomesVsPredicts=LTOTAL.Outcomes/LTOTAL.Predictions;
+	
+	let speedMod=(0.334+(((crashes.getRVGSum(3)/2)+(crashes.getRVGSum(7)/4)+(crashes.getRVGSum(11)/7)+(crashes.getRVGSum(22)/16)+(crashes.getRVGSum(33)/22))/5));
+	let winningMod=(((player.currentBankroll>player.balanceHistory['gid_'+(game.gameID-2)])+(player.currentBankroll>player.balanceHistory['gid_'+(game.gameID-4)])+(player.currentBankroll>player.balanceHistory['gid_'+(game.gameID-8)])+(player.currentBankroll>player.balanceHistory['gid_'+(game.gameID-16)])+(player.currentBankroll>player.balanceHistory['gid_'+(game.gameID-32)])+(player.currentBankroll>player.balanceHistory['gid_'+(game.gameID-64)]))/3)
+	let balanceModHigh=(0.5+((tools.get_balance_numGamesWereHigher()/(Object.keys(player.balanceHistory).length))*1.5)); // a number 0-2 - higher = worse we are doing, lower = better we are doing - mod /=
+	let balanceModLow=(0.5+(((tools.get_balance_numGamesWereLower()/Object.keys(player.balanceHistory).length))*1.5)); // a number 0-2 - higher = better we are doing, lower== worse we are doing - mod *=
+	let balanceMod=(1*(balanceModLow))/(balanceModHigh);
+	let blendMod=player.strategy.previousValidAmount;
+	
+	let predict2x=0;
+	let rvgMod=(0.02+(((crashes.getRVGSum(4)/2)+(crashes.getRVGSum(8)/4)+(crashes.getRVGSum(16)/8)+(crashes.getRVGSum(32)/16)+(crashes.getRVGSum(64)/32)+(crashes.getRVGSum(128)/64))/6));
+	rvgMod=(((rvgMod+rvgMod)+(0.02+(((crashes.getRVGSum(4)/2)+(crashes.getRVGSum(8)/4)+(crashes.getRVGSum(16)/8)+(crashes.getRVGSum(32)/16))/4)))/3)
+	rvgMod=(((rvgMod+rvgMod+rvgMod)+(0.02+(((crashes.getRVGSum(4)/2)+(crashes.getRVGSum(8)/4))/2)))/4)
+	let ynPercRight=(LTOTAL.totYups/LTOTAL.totNopes); // >1 and these are more often right, else wrong
+	let percTotYupsVsTotal=(LTOTAL.totYups/(LTOTAL.totYups+LTOTAL.totNopes)); // >1 and these are more often right, else wrong
+	let percTotNopesVsTotal=(LTOTAL.totNopes/(LTOTAL.totYups+LTOTAL.totNopes)); // >1 and these are more often right, else wrong
+	let percTotYupsToNopes=(LTOTAL.totYups/LTOTAL.totNopes); // >1 and these are more often right, else wrong
+	let percTotNopesToYups=(LTOTAL.totNopes/LTOTAL.totYups); // >1 and these are more often right, else wrong
+	let percCurYupsToNopes=(LTOTAL.curYups/LTOTAL.curNopes); // >1 and these are more often right, else wrong
+	let percCurNopesToYups=(LTOTAL.curNopes/LTOTAL.curYups); // >1 and these are more often right, else wrong
+	let percMaxYupsToNopes=(LTOTAL.maxYups/LTOTAL.maxNopes); // >1 and these are more often right, else wrong
+	let percMaxNopesToYups=(LTOTAL.maxNopes/LTOTAL.maxYups); // >1 and these are more often right, else wrong
+	let percCurYupsVsTotal=(LTOTAL.curYups/(LTOTAL.curYups+LTOTAL.curNopes)); // >1 and these are more often right, else wrong
+	let percCurNopesVsTotal=(LTOTAL.curNopes/(LTOTAL.curYups+LTOTAL.curNopes)); // >1 and these are more often right, else wrong
+	let percMaxYupsVsTotal=(LTOTAL.maxYups/(LTOTAL.maxYups+LTOTAL.maxNopes)); // >1 and these are more often right, else wrong
+	let percMaxNopesVsTotal=(LTOTAL.maxNopes/(LTOTAL.maxYups+LTOTAL.maxNopes)); // >1 and these are more often right, else wrong
+	let avgFuzz=LAVERAGE.Fuzz;
+	LTOTAL.Sums<0?ynPercRight=(LTOTAL.totNopes/LTOTAL.totYups):null;
+	let medModTiny=(1-prob(medians.Tiny/100));
+	let medModShort=(1-prob(medians.Short/100));
+	let medModMid=(1-prob(medians.Mid/100));
+	let medMod=(((medModTiny)+(medModShort)+(medModMid))/3);
+	rvgMod>1?predict2x+=(0.275*(LTOTAL.totYups/LTOTAL.totNopes)):predict2x-=(0.325*(LTOTAL.totYups/LTOTAL.totNopes));
+	rvgMod>1.25?predict2x+=(0.35*(LTOTAL.totYups/LTOTAL.totNopes)):predict2x-=0;
+	rvgMod>1.5?predict2x+=(0.4*(LTOTAL.totYups/LTOTAL.totNopes)):predict2x-=0;
+	rvgMod>1.75?predict2x+=(0.5*(LTOTAL.totYups/LTOTAL.totNopes)):predict2x-=0;
+	
+	LTOTAL.PositiveSumLearners>=LTOTAL.NegativeSumLearners?predict2x+=(0.5*(LTOTAL.totYups/LTOTAL.totNopes)):predict2x-=(0.5*(LTOTAL.totYups/LTOTAL.totNopes));
+	LTOTAL.PositiveSumLearners>LTOTAL.NegativeSumLearners?predict2x+=(0.5*(LTOTAL.totYups/LTOTAL.totNopes)):predict2x-=(0.25*(LTOTAL.totYups/LTOTAL.totNopes));
+	LTOTAL.Sums>0?predict2x+=(1*(LTOTAL.totYups/LTOTAL.totNopes)):predict2x-=(1*(LTOTAL.totYups/LTOTAL.totNopes));
+	LTOTAL.Sums>LTOTAL.learnersUsed?predict2x+=(0.50*(LTOTAL.totYups/LTOTAL.totNopes)):predict2x-=(0.25*(LTOTAL.totYups/LTOTAL.totNopes));
+	LAVERAGE.Sums>LTOTAL.learnersUsed?predict2x+=(0.75*(LTOTAL.totYups/LTOTAL.totNopes)):predict2x-=(0.125*(LTOTAL.totYups/LTOTAL.totNopes));
+	LTOTAL.Sums>LTOTAL.learners?predict2x+=(0.50*(LTOTAL.totYups/LTOTAL.totNopes)):predict2x-=(0.1*(LTOTAL.totYups/LTOTAL.totNopes));
+	LAVERAGE.Sums>LTOTAL.learners?predict2x+=(0.75*(LTOTAL.totYups/LTOTAL.totNopes)):predict2x-=(0.05*(LTOTAL.totYups/LTOTAL.totNopes));
+	(LTOTAL.TotalSums*(LTOTAL.totYups/LTOTAL.totNopes))>0?predict2x+=(0.25*(LTOTAL.totYups/LTOTAL.totNopes)):predict2x-=(0.35*(LTOTAL.totYups/LTOTAL.totNopes));
+	LAVERAGE.Sums>0?predict2x+=(0.25*(LTOTAL.totYups/LTOTAL.totNopes)):predict2x-=(0.13*(LTOTAL.totYups/LTOTAL.totNopes));
+	LTOTAL.Fuzz>0.65?predict2x+=(0.15*(LTOTAL.totYups/LTOTAL.totNopes)):predict2x-=(0.03*(LTOTAL.totYups/LTOTAL.totNopes));
+	((LAVERAGE.Fuzz+LAVERAGE.PercentTrue+0.493)/3)>0.493?predict2x+=(0.15*(LTOTAL.totYups/LTOTAL.totNopes)):predict2x-=(0.25*(LTOTAL.totYups/LTOTAL.totNopes));
+	((LAVERAGE.Fuzz+LAVERAGE.PercentTrue+0.493)/3)>0.593?predict2x+=(0.25*(LTOTAL.totYups/LTOTAL.totNopes)):predict2x-=0;
+	((LAVERAGE.Fuzz+LAVERAGE.PercentTrue+0.493)/3)>0.693?predict2x+=0.30:predict2x-=0;
+	(LTOTAL.PositiveSumLearners>=LTOTAL.learnersUsed*0.5)?predict2x+=(0.25*(LTOTAL.totYups/LTOTAL.totNopes)):predict2x-=(0.35*(LTOTAL.totYups/LTOTAL.totNopes));
+	(LTOTAL.PositiveSumLearners>=LTOTAL.learnersUsed*0.75)?predict2x+=0.35:predict2x-=0;
+	(LTOTAL.PositiveSumLearners==LTOTAL.learnersUsed)?predict2x+=0.4:predict2x-=0;
+	((LTOTAL.curYups*(LTOTAL.totYups/LTOTAL.totNopes))>(LTOTAL.curNopes*(LTOTAL.totNopes/LTOTAL.totYups)))?predict2x+=(0.35*(LTOTAL.totYups/LTOTAL.totNopes)):predict2x-=(0.45*(LTOTAL.totYups/LTOTAL.totNopes));
+	
+	predict2x*=((rvgMod)*(LTOTAL.totYups/LTOTAL.totNopes));
+	
+	
+	predict2x=Math.round(predict2x);
+	let brDividerDivider=1;
+	if (player.currentBankroll<500000){
+		 brDividerDivider=3.14159;
+	} else if (player.currentBankroll<100000){
+		 brDividerDivider=2.14159;
+	} else if (player.currentBankroll<200000){
+		 brDividerDivider=1.14159;
+	} else if (player.currentBankroll<400000){
+		 brDividerDivider=1;
+	}
+	predict2x<0?ourBet=100:null;
+	predict2x==0?ourBet=50+Math.ceil(player.currentBankroll/(3000/brDividerDivider)):null;
+	predict2x==1?ourBet=100+Math.ceil(player.currentBankroll/(2300/brDividerDivider)):null;
+	predict2x==2?ourBet=200+Math.ceil(player.currentBankroll/(1700/brDividerDivider)):null;
+	predict2x==3?ourBet=300+Math.ceil(player.currentBankroll/(1200/brDividerDivider)):null;
+	predict2x==4?ourBet=400+Math.ceil(player.currentBankroll/(800/brDividerDivider)):null;
+	predict2x==5?ourBet=500+Math.ceil(player.currentBankroll/(500/brDividerDivider)):null;
+	predict2x==6?ourBet=600+Math.ceil(player.currentBankroll/(300/brDividerDivider)):null;
+	predict2x==7?ourBet=700+Math.ceil(player.currentBankroll/(200/brDividerDivider)):null;
+	predict2x==8?ourBet=800+Math.ceil(player.currentBankroll/(150/brDividerDivider)):null;
+	predict2x>=9?ourBet=900+Math.ceil(player.currentBankroll/(125/brDividerDivider)):null;
+	
+	ourBet*=((rvgMod+speedMod)/2);
+	if (predict2x>=1){
+		ourBet*=((medMod*2));
+	}
+	
+	let balMod=balanceMod;
+	if (predict2x>=3 && balanceMod>=3){
+		balMod=1+((balanceMod/((3)+(5/predict2x))));
+		ourBet*=balMod;
+	} else if (predict2x>=2 && balanceMod>=2){
+		balMod=1+((balanceMod/((2)+(5/predict2x))));
+		ourBet*=balMod;
+	} else if (predict2x>=1 && balanceMod>=1){
+		balMod=1+((balanceMod/((1)+(5/predict2x))));
+		ourBet*=balMod;
+	}  else if (predict2x>=1){
+		balMod=(percentOfHighestBalance);
+		ourBet*=balMod;
+	} 
+	
+	if (predict2x>=4 && rvgMod>=1 && medMod>=0.5){
+		(highestBalance32WasNGamesAgo>3 && highestBalance32WasNGamesAgo<6)?ourBet*=(2/highestBalance32WasNGamesAgo):null;
+		(highestBalance32WasNGamesAgo>6 && highestBalance32WasNGamesAgo<12)?ourBet*=(5/highestBalance32WasNGamesAgo):null;
+		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>4 && highestBalance128WasNGamesAgo<8)?ourBet*=(3/highestBalance128WasNGamesAgo):null;
+		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>8 && highestBalance128WasNGamesAgo<16)?ourBet*=(6/highestBalance128WasNGamesAgo):null;
+		((highestBalanceWasNGamesAgo!=highestBalance128WasNGamesAgo) && (highestBalanceWasNGamesAgo!=highestBalance32WasNGamesAgo) &&highestBalanceWasNGamesAgo>32 && highestBalanceWasNGamesAgo<64)?ourBet*=(24/highestBalanceWasNGamesAgo):null;
+		((highestBalanceWasNGamesAgo!=highestBalance128WasNGamesAgo) && (highestBalanceWasNGamesAgo!=highestBalance32WasNGamesAgo) &&highestBalanceWasNGamesAgo>64 && highestBalanceWasNGamesAgo<128)?ourBet*=(48/highestBalanceWasNGamesAgo):null;
+	}
+	else if (predict2x>=3 && rvgMod>=1 && medMod>=0.5){
+		(highestBalance32WasNGamesAgo>6 && highestBalance32WasNGamesAgo<12)?ourBet*=(4/highestBalance32WasNGamesAgo):null;
+		(highestBalance32WasNGamesAgo>12 && highestBalance32WasNGamesAgo<24)?ourBet*=(8/highestBalance32WasNGamesAgo):null;
+		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>6 && highestBalance128WasNGamesAgo<12)?ourBet*=(4/highestBalance128WasNGamesAgo):null;
+		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>12 && highestBalance128WasNGamesAgo<24)?ourBet*=(8/highestBalance128WasNGamesAgo):null;
+		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>24 && highestBalance128WasNGamesAgo<48)?ourBet*=(24/highestBalance128WasNGamesAgo):null;
+		((highestBalanceWasNGamesAgo!=highestBalance128WasNGamesAgo) && (highestBalanceWasNGamesAgo!=highestBalance32WasNGamesAgo) &&highestBalanceWasNGamesAgo>64 && highestBalanceWasNGamesAgo<128)?ourBet*=(48/highestBalanceWasNGamesAgo):null;
+		((highestBalanceWasNGamesAgo!=highestBalance128WasNGamesAgo) && (highestBalanceWasNGamesAgo!=highestBalance32WasNGamesAgo) &&highestBalanceWasNGamesAgo>128 && highestBalanceWasNGamesAgo<256)?ourBet*=(96/highestBalanceWasNGamesAgo):null;
+	}
+	else if (predict2x>=2 && rvgMod>=1 && medMod>=0.5){
+		(highestBalance32WasNGamesAgo>6 && highestBalance32WasNGamesAgo<12)?ourBet*=(4/highestBalance32WasNGamesAgo):null;
+		(highestBalance32WasNGamesAgo>12 && highestBalance32WasNGamesAgo<24)?ourBet*=(8/highestBalance32WasNGamesAgo):null;
+		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>12 && highestBalance128WasNGamesAgo<24)?ourBet*=(8/highestBalance128WasNGamesAgo):null;
+		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>24 && highestBalance128WasNGamesAgo<48)?ourBet*=(16/highestBalance128WasNGamesAgo):null;
+		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>48 && highestBalance128WasNGamesAgo<96)?ourBet*=(32/highestBalance128WasNGamesAgo):null;
+		((highestBalanceWasNGamesAgo!=highestBalance128WasNGamesAgo) && (highestBalanceWasNGamesAgo!=highestBalance32WasNGamesAgo) &&  highestBalanceWasNGamesAgo>256 && highestBalanceWasNGamesAgo<512)?ourBet*=(192/highestBalanceWasNGamesAgo):null;
+		((highestBalanceWasNGamesAgo!=highestBalance128WasNGamesAgo) && (highestBalanceWasNGamesAgo!=highestBalance32WasNGamesAgo) &&highestBalanceWasNGamesAgo>512 && highestBalanceWasNGamesAgo<1024)?ourBet*=(384/highestBalanceWasNGamesAgo):null;
+	}
+	if (highestBalanceWasNGamesAgo<312 && percentOfHighestBalance>=1.0445){
 
-	console.log(`%cSum of Learner Sums: ${SumSum}`, 'color:' + sumcolor);
-	console.log(`%cPositive Learner Sums: ${nPositive} out of ${nTotal} (only patterns with at least 4+ predictions and +-1% sum rate counted)`, 'color:' + percentcolor);
-	let GODLY = {}; // our bet holder
-	let ssDivider = 99;
-	if (nPositive > 0) {
-		if (SumSum < (-1)) {
-			ssDivider = ((150) + (Math.abs(SumSum) * 2));
-		} else if (SumSum > 1) {
-			ssDivider = ((99) + ((9 * (nTotal / nPositive)) / (SumSum * 2)));
-		} else {
-			ssDivider = 150;
-		}
-		console.log(`%cSSSSSSSSSSSSSSSSSSS ~~~~ SumSum Divider: ${(ssDivider/gtMod).toFixed(0)} ~~~~ SSSSSSSSSSSSSSSSSSS`, 'text-align:center;');
-		if ((player.netProfit / 2) > player.initialBankroll) {
-			// our net profit is now >200% of what we started with, we tripled our bankroll, use a mix of net profit and initial bankroll now
-			if (gtMod >= 1.25) {
-				GODLY.BET = (((player.netProfit / (99)) + (player.initialBankroll / (99))) / 2);
-			} else if (gtMod >= 1.12) {
-				GODLY.BET = (((player.netProfit / (111)) + (player.initialBankroll / (111))) / 2);
-			} else if (gtMod >= 1.07) {
-				GODLY.BET = (((player.netProfit / (133)) + (player.initialBankroll / (133))) / 2);
-			} else if (gtMod >= 1.03) {
-				GODLY.BET = (((player.netProfit / (167)) + (player.initialBankroll / (167))) / 2);
-			} else if (gtMod >= 1.01) {
-				GODLY.BET = (((player.netProfit / (222)) + (player.initialBankroll / (222))) / 2);
-			} else if (gtMod >= 0.99) {
-				GODLY.BET = (((player.netProfit / (333)) + (player.initialBankroll / (333))) / 2);
-			} else if (gtMod >= 0.97) {
-				GODLY.BET = (((player.netProfit / (444)) + (player.initialBankroll / (444))) / 2);
-			} else if (gtMod >= 0.94) {
-				GODLY.BET = (((player.netProfit / (666)) + (player.initialBankroll / (666))) / 2);
-			} else {
-				GODLY.BET = (((player.netProfit / (999)) + (player.initialBankroll / (999))) / 2);
-			}
-			GODLY.BET = ((GODLY.BET + (((player.netProfit / (ssDivider / gtMod)) + (player.initialBankroll / (ssDivider / gtMod))) / 2)) / 2);
-		} else if ((player.netProfit * 2) > player.initialBankroll) {
-			// our net profit is now >50% of what we started with, we will pretend that it is our bankroll until we fall back down <50% or hit >200%
-			if (gtMod >= 1.25) {
-				GODLY.BET = (player.netProfit / (99));
-			} else if (gtMod >= 1.12) {
-				GODLY.BET = (player.netProfit / (111));
-			} else if (gtMod >= 1.07) {
-				GODLY.BET = (player.netProfit / (133));
-			} else if (gtMod >= 1.03) {
-				GODLY.BET = (player.netProfit / (167));
-			} else if (gtMod >= 1.01) {
-				GODLY.BET = (player.netProfit / (222));
-			} else if (gtMod >= 0.99) {
-				GODLY.BET = (player.netProfit / (333));
-			} else if (gtMod >= 0.97) {
-				GODLY.BET = (player.netProfit / (444));
-			} else if (gtMod >= 0.94) {
-				GODLY.BET = (player.netProfit / (666));
-			} else {
-				GODLY.BET = (player.netProfit / (999));
-			}
-			GODLY.BET = ((GODLY.BET + (player.netProfit / (ssDivider / gtMod))) / 2);
-		} else if (player.netProfit > 0) {
-			// using initialBankroll, bet will remain similar when in profit 
-			if (gtMod >= 1.25) {
-				GODLY.BET = (player.initialBankroll / (99));
-			} else if (gtMod >= 1.12) {
-				GODLY.BET = (player.initialBankroll / (111));
-			} else if (gtMod >= 1.07) {
-				GODLY.BET = (player.initialBankroll / (133));
-			} else if (gtMod >= 1.03) {
-				GODLY.BET = (player.initialBankroll / (167));
-			} else if (gtMod >= 1.01) {
-				GODLY.BET = (player.initialBankroll / (222));
-			} else if (gtMod >= 0.99) {
-				GODLY.BET = (player.initialBankroll / (333));
-			} else if (gtMod >= 0.97) {
-				GODLY.BET = (player.initialBankroll / (444));
-			} else if (gtMod >= 0.94) {
-				GODLY.BET = (player.initialBankroll / (666));
-			} else {
-				GODLY.BET = (player.initialBankroll / (999));
-			}
-			GODLY.BET = ((GODLY.BET + (player.initialBankroll / (ssDivider / gtMod))) / 2);
-		} else {
-			//  using currentBankroll, bet will scale down when in debt
-			if (gtMod >= 1.25) {
-				GODLY.BET = (player.currentBankroll / (99));
-			} else if (gtMod >= 1.12) {
-				GODLY.BET = (player.currentBankroll / (111));
-			} else if (gtMod >= 1.07) {
-				GODLY.BET = (player.currentBankroll / (133));
-			} else if (gtMod >= 1.03) {
-				GODLY.BET = (player.currentBankroll / (167));
-			} else if (gtMod >= 1.01) {
-				GODLY.BET = (player.currentBankroll / (222));
-			} else if (gtMod >= 0.99) {
-				GODLY.BET = (player.currentBankroll / (333));
-			} else if (gtMod >= 0.97) {
-				GODLY.BET = (player.currentBankroll / (444));
-			} else if (gtMod >= 0.94) {
-				GODLY.BET = (player.currentBankroll / (666));
-			} else {
-				GODLY.BET = (player.currentBankroll / (999));
-			}
-			GODLY.BET = ((GODLY.BET + (player.currentBankroll / (ssDivider / gtMod))) / 2);
-		}
-		let ssmodB = 1;
-		if (SumSum > nTotal) {
-			ssmodB = 1.1;
-		} else if (SumSum > 0) {
-			ssmodB = 1.05;
-		} else if (SumSum < 1 && SumSum > (-1)) {
-			ssmodB = 1;
-		} else if (SumSum < (0 - nTotal)) {
-			ssmodB = 0.9;
-		} else {
-			ssmodB = 0.95;
-		}
-		let MajorModB = (((percentPositive * 2) + (averagePercent) + (ssmodB) + (gtMod)) / 4);
-		GODLY.BET = (GODLY.BET * MajorModB);
-		GODLY.BET *= gtMod;
-		GODLY.MULTIPLIER = 200;
-		let differ=(gtProb-prob(2));
-		GODLY.BET *= (1+differ);
+		highestBalanceWasNGamesAgo<2?ourBet/=((1)+(1/predict2x)):null;
+		highestBalanceWasNGamesAgo<4?ourBet/=((1)+(2/predict2x)):null;
+		highestBalanceWasNGamesAgo<8?ourBet/=((1)+(4/predict2x)):null;
+		highestBalanceWasNGamesAgo<16?ourBet/=((1)+(8/predict2x)):null;
+		highestBalanceWasNGamesAgo<32?ourBet/=((1)+(16/predict2x)):null;
+		highestBalanceWasNGamesAgo<64?ourBet/=((1)+(32/predict2x)):null;
+		highestBalanceWasNGamesAgo<128?ourBet/=((1)+(16/predict2x)):null;
+		highestBalanceWasNGamesAgo<256?ourBet/=((1)+(8/predict2x)):null;
+		highestBalanceWasNGamesAgo<312?ourBet/=((1)+(4/predict2x)):null;
+	}
+	if (highestBalance128WasNGamesAgo!=highestBalanceWasNGamesAgo && highestBalance128WasNGamesAgo<96 && percentOfHighestBalance128>=1.0334){
+
+		highestBalance128WasNGamesAgo<2?ourBet/=((1)+(1/predict2x)):null;
+		highestBalance128WasNGamesAgo<4?ourBet/=((1)+(2/predict2x)):null;
+		highestBalance128WasNGamesAgo<8?ourBet/=((1)+(4/predict2x)):null;
+		highestBalance128WasNGamesAgo<16?ourBet/=((1)+(8/predict2x)):null;
+		highestBalance128WasNGamesAgo<32?ourBet/=((1)+(16/predict2x)):null;
+		highestBalance128WasNGamesAgo<64?ourBet/=((1)+(32/predict2x)):null;
+		highestBalance128WasNGamesAgo<96?ourBet/=((1)+(16/predict2x)):null;
+	}
+	if (highestBalance32WasNGamesAgo!=highestBalance128WasNGamesAgo && highestBalance32WasNGamesAgo<24 && percentOfHighestBalance32>=1.0223){
+
+		highestBalance32WasNGamesAgo<2?ourBet/=((1)+(1/predict2x)):null;
+		highestBalance32WasNGamesAgo<4?ourBet/=((1)+(2/predict2x)):null;
+		highestBalance32WasNGamesAgo<8?ourBet/=((1)+(4/predict2x)):null;
+		highestBalance32WasNGamesAgo<16?ourBet/=((1)+(8/predict2x)):null;
+		highestBalance32WasNGamesAgo<24?ourBet/=((1)+(4/predict2x)):null;
 		
-	} else {
-		GODLY.BET = 0;
-		GODLY.MULTIPLIER = 0;
 	}
+	/*
+	if (highestBalanceWasNGamesAgo<32){
 
+		highestBalanceWasNGamesAgo<4?ourBet/=1.1:null;
+		highestBalanceWasNGamesAgo<8?ourBet/=1.2:null;
+		highestBalanceWasNGamesAgo<16?ourBet/=1.3:null;
+		highestBalanceWasNGamesAgo<24?ourBet/=1.4:null;
+		if (predict2x>=5 && percentOfHighestBalance>=1.04){
+			highestBalanceWasNGamesAgo<32?ourBet/=((41-highestBalanceWasNGamesAgo)/8):null;
+		} else if (predict2x>=5 && percentOfHighestBalance>=1.02){
+			highestBalanceWasNGamesAgo<24?ourBet/=((32-highestBalanceWasNGamesAgo)/8):null;
+		} else if (predict2x>=5 && percentOfHighestBalance>=1.01){
+			highestBalanceWasNGamesAgo<16?ourBet/=((24-highestBalanceWasNGamesAgo)/8):null;
+		} else if (predict2x>=5 && percentOfHighestBalance>=1.001){
+			highestBalanceWasNGamesAgo<12?ourBet/=((20-highestBalanceWasNGamesAgo)/8):null;
+		} else if (predict2x<5 && percentOfHighestBalance>=1.02){
+			highestBalanceWasNGamesAgo<32?ourBet/=((41-highestBalanceWasNGamesAgo)/8):null;
+		} else if (predict2x<4 && percentOfHighestBalance>=1.01){
+			highestBalanceWasNGamesAgo<32?ourBet/=((37-highestBalanceWasNGamesAgo)/4):null;
+		} else if (predict2x<3 && percentOfHighestBalance>=1.00){
+			highestBalanceWasNGamesAgo<32?ourBet/=((33-highestBalanceWasNGamesAgo)/2):null;
+		} else if (predict2x<2 && percentOfHighestBalance>=1.00){
+			highestBalanceWasNGamesAgo<24?ourBet/=((25-highestBalanceWasNGamesAgo)/2):null;
+		} else if (predict2x<=0 && percentOfHighestBalance>=1.00){
+			highestBalanceWasNGamesAgo<16?ourBet/=((17-highestBalanceWasNGamesAgo)/2):null;
+		}
+		
+	} else if (highestBalance128WasNGamesAgo<32){
 
-	let ssmod = 1;
-	if (SumSum > nTotal) {
-		ssmod = 1.2;
-	} else if (SumSum > 0) {
-		ssmod = 1.1;
-	} else if (SumSum < 1 && SumSum > (-1)) {
-		ssmod = 1;
-	} else if (SumSum < (0 - nTotal)) {
-		ssmod = 0.8;
-	} else {
-		ssmod = 0.9;
-	}
-	let MajorMod = (((percentPositive * 2) + (averagePercent) + (ssmod) + (gtMod)) / 4);
-	// Set minimum and maximum bets based on net profit
-	if ((player.netProfit / 2) > player.initialBankroll) {
-		GODLY.BET > (((player.netProfit / (44.5 / MajorMod)) + (player.initialBankroll / (44.5 / MajorMod))) / 2) ? GODLY.BET = (((player.netProfit / (44.5 / MajorMod)) + (player.initialBankroll / (44.5 / MajorMod))) / 2) : null;
-		if (GODLY.BET != 0 && GODLY.BET < 100) {
-			GODLY.BET = 100;
-			GODLY.MULTIPLIER = 200;
+		highestBalance128WasNGamesAgo<4?ourBet/=1.1:null;
+		highestBalance128WasNGamesAgo<8?ourBet/=1.2:null;
+		highestBalance128WasNGamesAgo<16?ourBet/=1.3:null;
+		highestBalance128WasNGamesAgo<24?ourBet/=1.4:null;
+		if (predict2x>=5 && percentOfHighestBalance128>=1.04){
+			highestBalance128WasNGamesAgo<32?ourBet/=((41-highestBalance128WasNGamesAgo)/8):null;
+		} else if (predict2x>=5 && percentOfHighestBalance128>=1.02){
+			highestBalance128WasNGamesAgo<24?ourBet/=((32-highestBalance128WasNGamesAgo)/8):null;
+		} else if (predict2x>=5 && percentOfHighestBalance128>=1.01){
+			highestBalance128WasNGamesAgo<16?ourBet/=((24-highestBalance128WasNGamesAgo)/8):null;
+		} else if (predict2x>=5 && percentOfHighestBalance128>=1.001){
+			highestBalance128WasNGamesAgo<12?ourBet/=((20-highestBalance128WasNGamesAgo)/8):null;
+		} else if (predict2x<5 && percentOfHighestBalance128>=1.02){
+			highestBalance128WasNGamesAgo<32?ourBet/=((41-highestBalance128WasNGamesAgo)/8):null;
+		} else if (predict2x<4 && percentOfHighestBalance128>=1.01){
+			highestBalance128WasNGamesAgo<32?ourBet/=((37-highestBalance128WasNGamesAgo)/4):null;
+		} else if (predict2x<3 && percentOfHighestBalance128>=1.00){
+			highestBalance128WasNGamesAgo<32?ourBet/=((33-highestBalance128WasNGamesAgo)/2):null;
+		} else if (predict2x<2 && percentOfHighestBalance128>=1.00){
+			highestBalance128WasNGamesAgo<24?ourBet/=((25-highestBalance128WasNGamesAgo)/2):null;
+		} else if (predict2x<=0 && percentOfHighestBalance128>=1.00){
+			highestBalance128WasNGamesAgo<16?ourBet/=((17-highestBalance128WasNGamesAgo)/2):null;
 		}
-		GODLY.BET > (((player.netProfit / (22)) + (player.initialBankroll / (22))) / 2) ? GODLY.BET = (((player.netProfit / (22)) + (player.initialBankroll / (22))) / 2) : null;
-	} else if ((player.netProfit * 2) > player.initialBankroll) {
-		GODLY.BET > (player.netProfit / (44.5 / MajorMod)) ? GODLY.BET = (player.netProfit / (44.5 / MajorMod)) : null;
-		if (GODLY.BET != 0 && GODLY.BET < 100) {
-			GODLY.BET = 100;
-			GODLY.MULTIPLIER = 200;
-		}
-		GODLY.BET > (player.netProfit / 22) ? GODLY.BET = (player.netProfit / 22) : null;
-	} else if (player.netProfit > 0) {
-		//  using initialBankroll, max bet will remain similar when in profit, and bets under 1 bit will be played at 1 bit
-		GODLY.BET > (player.initialBankroll / (44.5 / MajorMod)) ? GODLY.BET = (player.initialBankroll / (44.5 / MajorMod)) : null;
-		if (GODLY.BET != 0 && GODLY.BET < 100) {
-			GODLY.BET = 100;
-			GODLY.MULTIPLIER = 200;
-		}
-		GODLY.BET > (player.initialBankroll / 22) ? GODLY.BET = (player.initialBankroll / 22) : null;
-	} else {
-		//  using currentBankroll, max bet will scale down when in debt, and bets under 1 bit will be sat out
-		GODLY.BET > (player.currentBankroll / (44.5 / MajorMod)) ? GODLY.BET = (player.currentBankroll / (44.5 / MajorMod)) : null;
-		if (GODLY.BET != 0 && GODLY.BET < 100) {
-			GODLY.BET = 0;
-			GODLY.MULTIPLIER = 0;
-		}
-		GODLY.BET > (player.currentBankroll / 22) ? GODLY.BET = (player.currentBankroll / 22) : null;
-	}
+
+		
+	}  
 	
+	*/
+	
+	
+	predict2x==1?ourBet+=(player.numGamesPlayed/(32*(brDividerDivider*5.14159))):null;
+	predict2x==2?ourBet+=(player.numGamesPlayed/(16*(brDividerDivider*4.14159))):null;
+	predict2x==3?ourBet+=(player.numGamesPlayed/(8*(brDividerDivider*3.14159))):null;
+	predict2x==4?ourBet+=(player.numGamesPlayed/(4*(brDividerDivider*2.14159))):null;
+	predict2x==5?ourBet+=(player.numGamesPlayed/(2*(brDividerDivider*1.14159))):null;
+	predict2x==6?ourBet+=(player.numGamesPlayed*brDividerDivider):null;
+	predict2x==7?ourBet+=(player.numGamesPlayed*(2/(brDividerDivider*1.14159))):null;
+	predict2x==8?ourBet+=(player.numGamesPlayed*(4/(brDividerDivider*2.14159))):null;
+	predict2x==9?ourBet+=(player.numGamesPlayed*(8/(brDividerDivider*3.14159))):null;
+	predict2x>=10?ourBet+=(player.numGamesPlayed*(16/(brDividerDivider*4.14159))):null;
+	
+		ourBet=(((ourBet)+(ourBet*percentOfLearnersUsed))/2);
+	if (player.currentStreakType=="WON"){
+		ourBet*=ynPercRight;
+		ourBet=(((ourBet)+(ourBet*ynPercRight))/2);
+		ourBet=(((ourBet*((player.currentStreakCount)+1))+blendMod)/((player.currentStreakCount)+2));
+	} else {
+		
+		ourBet=(((ourBet)+(ourBet*ynPercRight))/2);
+		ourBet=(((ourBet*((player.currentStreakCount)+2))+blendMod)/((player.currentStreakCount)+3));
+	}
+	let percsAndMods=["balMod","rvgMod","medMod","speedMod","winningMod","percentOfPosSumVsNegSumLearners","percentOutcomesVsPredicts","percentOfPosSumLearners","percentOfNegSumLearners","percentOfLearnersUsed","balanceMod","balanceModHigh","balanceModLow","medModTiny","medModShort","medModMid","percTotYupsVsTotal","percTotNopesVsTotal","percTotYupsToNopes","percCurYupsToNopes","percMaxYupsToNopes","percCurYupsVsTotal","percCurNopesVsTotal","percMaxYupsVsTotal","percMaxNopesVsTotal","percTotNopesToYups","percCurNopesToYups","percMaxNopesToYups"].sort((a,b)=>a<b);
+	
+	let modString='';
+	for (var pm in percsAndMods){
+		modString+=(((percsAndMods[pm].replace('Total','tot')+'                        ').slice(0,20))+': '+(((((eval(percsAndMods[pm]))*100).toFixed(1))+'%      ').slice(0,7))+'~ ');
+		pm%4==0?modString+='\n':null;
+	}
+	predict2x<0?ourBet=100:null;
+	console.log(`highestBalance512WasNGamesAgo   : ${highestBalanceWasNGamesAgo} @ ${(highestBalanceWas/100).toFixed(0)} bits ~~~ currentBalance ${(player.currentBankroll/100).toFixed(0)} bits as a percentOfHighestBalance ${dispMod(percentOfHighestBalance)}
+highestBalance128WasNGamesAgo: ${highestBalance128WasNGamesAgo} @ ${(highestBalance128Was/100).toFixed(0)} bits ~~~ currentBalance ${(player.currentBankroll/100).toFixed(0)} bits as a percentOfHighestBalance128 ${dispMod(percentOfHighestBalance128)}
+highestBalance32WasNGamesAgo : ${highestBalance32WasNGamesAgo} @ ${(highestBalance128Was/100).toFixed(0)} bits ~~~ currentBalance ${(player.currentBankroll/100).toFixed(0)} bits as a percentOfHighestBalance32 ${dispMod(percentOfHighestBalance32)}
+|~~~~~~~~~~~~~~~ MODS ~~~~ MODS ~~~~ MODS ~~~~~~~~~~~~~~~
+${modString} 
+|~~~~~~~~~~~~~~~ MODS ~~~~ MODS ~~~~ MODS ~~~~~~~~~~~~~~~
+ourBet: ${(ourBet/100).toFixed(1)} ~~ predict2x: ${predict2x.toFixed(1)} `);
+	
+	
+	
+	
+	/* END OF STRATEGY */
+	
+	if (ourBet!=0 && ourBet<100){
+		ourBet=100;
+	}
+	if (ourBet>player.currentBankroll/44){
+		ourBet=player.currentBankroll/44;
+	}
 	return {
-		'amount': (GODLY.BET),
-		'multiplier': GODLY.MULTIPLIER
+		'amount': ourBet,
+		'multiplier':ourMultiplier
 	};
-	
+
 }
+
 
