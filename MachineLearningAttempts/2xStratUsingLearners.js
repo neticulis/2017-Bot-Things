@@ -98,13 +98,13 @@ window.learner.strategy[0]=function(){
 	rvgMod=(((rvgMod+rvgMod+rvgMod)+(0.02+(((crashes.getRVGSum(4)/2)+(crashes.getRVGSum(8)/4))/2)))/4)
 	let ynPercRight=(LTOTAL.totYups/LTOTAL.totNopes); // >1 and these are more often right, else wrong
 	let percTotYupsVsTotal=(LTOTAL.totYups/(LTOTAL.totYups+LTOTAL.totNopes)); // >1 and these are more often right, else wrong
-	let percTotNopesVsTotal=(LTOTAL.totNopes/(LTOTAL.totYups+LTOTAL.totNopes)); // >1 and these are more often right, else wrong
-	let percTotYupsToNopes=(LTOTAL.totYups/LTOTAL.totNopes); // >1 and these are more often right, else wrong
-	let percTotNopesToYups=(LTOTAL.totNopes/LTOTAL.totYups); // >1 and these are more often right, else wrong
-	let percCurYupsToNopes=(LTOTAL.curYups/LTOTAL.curNopes); // >1 and these are more often right, else wrong
-	let percCurNopesToYups=(LTOTAL.curNopes/LTOTAL.curYups); // >1 and these are more often right, else wrong
-	let percMaxYupsToNopes=(LTOTAL.maxYups/LTOTAL.maxNopes); // >1 and these are more often right, else wrong
-	let percMaxNopesToYups=(LTOTAL.maxNopes/LTOTAL.maxYups); // >1 and these are more often right, else wrong
+	let percTotNopesVsTotal=((LTOTAL.totNopes)/(LTOTAL.totYups+LTOTAL.totNopes)); // >1 and these are more often right, else wrong
+	let percTotYupsToNopes=((LTOTAL.totYups+1)/(LTOTAL.totNopes+1)); // >1 and these are more often right, else wrong
+	let percTotNopesToYups=((LTOTAL.totNopes+1)/(LTOTAL.totYups+1)); // >1 and these are more often right, else wrong
+	let percCurYupsToNopes=((LTOTAL.curYups+1)/(LTOTAL.curNopes+1)); // >1 and these are more often right, else wrong
+	let percCurNopesToYups=((LTOTAL.curNopes+1)/(LTOTAL.curYups+1)); // >1 and these are more often right, else wrong
+	let percMaxYupsToNopes=((LTOTAL.maxYups+1)/(LTOTAL.maxNopes+1)); // >1 and these are more often right, else wrong
+	let percMaxNopesToYups=((LTOTAL.maxNopes+1)/(LTOTAL.maxYups+1)); // >1 and these are more often right, else wrong
 	let percCurYupsVsTotal=(LTOTAL.curYups/(LTOTAL.curYups+LTOTAL.curNopes)); // >1 and these are more often right, else wrong
 	let percCurNopesVsTotal=(LTOTAL.curNopes/(LTOTAL.curYups+LTOTAL.curNopes)); // >1 and these are more often right, else wrong
 	let percMaxYupsVsTotal=(LTOTAL.maxYups/(LTOTAL.maxYups+LTOTAL.maxNopes)); // >1 and these are more often right, else wrong
@@ -183,33 +183,7 @@ window.learner.strategy[0]=function(){
 		balMod=(percentOfHighestBalance);
 		ourBet*=balMod;
 	} 
-	
-	if (predict2x>=4 && rvgMod>=1 && medMod>=0.5){
-		(highestBalance32WasNGamesAgo>3 && highestBalance32WasNGamesAgo<6)?ourBet*=(2/highestBalance32WasNGamesAgo):null;
-		(highestBalance32WasNGamesAgo>6 && highestBalance32WasNGamesAgo<12)?ourBet*=(5/highestBalance32WasNGamesAgo):null;
-		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>4 && highestBalance128WasNGamesAgo<8)?ourBet*=(3/highestBalance128WasNGamesAgo):null;
-		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>8 && highestBalance128WasNGamesAgo<16)?ourBet*=(6/highestBalance128WasNGamesAgo):null;
-		((highestBalanceWasNGamesAgo!=highestBalance128WasNGamesAgo) && (highestBalanceWasNGamesAgo!=highestBalance32WasNGamesAgo) &&highestBalanceWasNGamesAgo>32 && highestBalanceWasNGamesAgo<64)?ourBet*=(24/highestBalanceWasNGamesAgo):null;
-		((highestBalanceWasNGamesAgo!=highestBalance128WasNGamesAgo) && (highestBalanceWasNGamesAgo!=highestBalance32WasNGamesAgo) &&highestBalanceWasNGamesAgo>64 && highestBalanceWasNGamesAgo<128)?ourBet*=(48/highestBalanceWasNGamesAgo):null;
-	}
-	else if (predict2x>=3 && rvgMod>=1 && medMod>=0.5){
-		(highestBalance32WasNGamesAgo>6 && highestBalance32WasNGamesAgo<12)?ourBet*=(4/highestBalance32WasNGamesAgo):null;
-		(highestBalance32WasNGamesAgo>12 && highestBalance32WasNGamesAgo<24)?ourBet*=(8/highestBalance32WasNGamesAgo):null;
-		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>6 && highestBalance128WasNGamesAgo<12)?ourBet*=(4/highestBalance128WasNGamesAgo):null;
-		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>12 && highestBalance128WasNGamesAgo<24)?ourBet*=(8/highestBalance128WasNGamesAgo):null;
-		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>24 && highestBalance128WasNGamesAgo<48)?ourBet*=(24/highestBalance128WasNGamesAgo):null;
-		((highestBalanceWasNGamesAgo!=highestBalance128WasNGamesAgo) && (highestBalanceWasNGamesAgo!=highestBalance32WasNGamesAgo) &&highestBalanceWasNGamesAgo>64 && highestBalanceWasNGamesAgo<128)?ourBet*=(48/highestBalanceWasNGamesAgo):null;
-		((highestBalanceWasNGamesAgo!=highestBalance128WasNGamesAgo) && (highestBalanceWasNGamesAgo!=highestBalance32WasNGamesAgo) &&highestBalanceWasNGamesAgo>128 && highestBalanceWasNGamesAgo<256)?ourBet*=(96/highestBalanceWasNGamesAgo):null;
-	}
-	else if (predict2x>=2 && rvgMod>=1 && medMod>=0.5){
-		(highestBalance32WasNGamesAgo>6 && highestBalance32WasNGamesAgo<12)?ourBet*=(4/highestBalance32WasNGamesAgo):null;
-		(highestBalance32WasNGamesAgo>12 && highestBalance32WasNGamesAgo<24)?ourBet*=(8/highestBalance32WasNGamesAgo):null;
-		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>12 && highestBalance128WasNGamesAgo<24)?ourBet*=(8/highestBalance128WasNGamesAgo):null;
-		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>24 && highestBalance128WasNGamesAgo<48)?ourBet*=(16/highestBalance128WasNGamesAgo):null;
-		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>48 && highestBalance128WasNGamesAgo<96)?ourBet*=(32/highestBalance128WasNGamesAgo):null;
-		((highestBalanceWasNGamesAgo!=highestBalance128WasNGamesAgo) && (highestBalanceWasNGamesAgo!=highestBalance32WasNGamesAgo) &&  highestBalanceWasNGamesAgo>256 && highestBalanceWasNGamesAgo<512)?ourBet*=(192/highestBalanceWasNGamesAgo):null;
-		((highestBalanceWasNGamesAgo!=highestBalance128WasNGamesAgo) && (highestBalanceWasNGamesAgo!=highestBalance32WasNGamesAgo) &&highestBalanceWasNGamesAgo>512 && highestBalanceWasNGamesAgo<1024)?ourBet*=(384/highestBalanceWasNGamesAgo):null;
-	}
+	// Bump down the bet for profit saving (if we hit a high balance in the last 312/96/24 games)
 	if (highestBalanceWasNGamesAgo<312 && percentOfHighestBalance>=1.0445){
 
 		highestBalanceWasNGamesAgo<2?ourBet/=((1)+(1/predict2x)):null;
@@ -240,6 +214,33 @@ window.learner.strategy[0]=function(){
 		highestBalance32WasNGamesAgo<16?ourBet/=((1)+(8/predict2x)):null;
 		highestBalance32WasNGamesAgo<24?ourBet/=((1)+(4/predict2x)):null;
 		
+	}
+	// Bump up the bet when gameplay is good and profit saving is on 
+	if (predict2x>=6 &&  rvgMod>1.08 && medMod>0.58){
+		(highestBalance32WasNGamesAgo>3 && highestBalance32WasNGamesAgo<6)?ourBet/=(2/highestBalance32WasNGamesAgo):null;
+		(highestBalance32WasNGamesAgo>6 && highestBalance32WasNGamesAgo<12)?ourBet/=(5/highestBalance32WasNGamesAgo):null;
+		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>4 && highestBalance128WasNGamesAgo<8)?ourBet/=(3/highestBalance128WasNGamesAgo):null;
+		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>8 && highestBalance128WasNGamesAgo<16)?ourBet/=(6/highestBalance128WasNGamesAgo):null;
+		((highestBalanceWasNGamesAgo!=highestBalance128WasNGamesAgo) && (highestBalanceWasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalanceWasNGamesAgo>32 && highestBalanceWasNGamesAgo<64)?ourBet/=(28/highestBalanceWasNGamesAgo):null;
+		((highestBalanceWasNGamesAgo!=highestBalance128WasNGamesAgo) && (highestBalanceWasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalanceWasNGamesAgo>64 && highestBalanceWasNGamesAgo<128)?ourBet/=(52/highestBalanceWasNGamesAgo):null;
+	}
+	else if (predict2x>=4 && rvgMod>1.04 && medMod>0.54){
+		(highestBalance32WasNGamesAgo>6 && highestBalance32WasNGamesAgo<12)?ourBet*=(4/highestBalance32WasNGamesAgo):null;
+		(highestBalance32WasNGamesAgo>12 && highestBalance32WasNGamesAgo<24)?ourBet*=(8/highestBalance32WasNGamesAgo):null;
+		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>6 && highestBalance128WasNGamesAgo<12)?ourBet/=(4/highestBalance128WasNGamesAgo):null;
+		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>12 && highestBalance128WasNGamesAgo<24)?ourBet/=(8/highestBalance128WasNGamesAgo):null;
+		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>24 && highestBalance128WasNGamesAgo<48)?ourBet/=(20/highestBalance128WasNGamesAgo):null;
+		((highestBalanceWasNGamesAgo!=highestBalance128WasNGamesAgo) && (highestBalanceWasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalanceWasNGamesAgo>64 && highestBalanceWasNGamesAgo<128)?ourBet/=(52/highestBalanceWasNGamesAgo):null;
+		((highestBalanceWasNGamesAgo!=highestBalance128WasNGamesAgo) && (highestBalanceWasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalanceWasNGamesAgo>128 && highestBalanceWasNGamesAgo<256)?ourBet/=(112/highestBalanceWasNGamesAgo):null;
+	}
+	else if (predict2x>=2 && rvgMod>1.02 && medMod>0.52){
+		(highestBalance32WasNGamesAgo>6 && highestBalance32WasNGamesAgo<12)?ourBet*=(4/highestBalance32WasNGamesAgo):null;
+		(highestBalance32WasNGamesAgo>12 && highestBalance32WasNGamesAgo<24)?ourBet*=(8/highestBalance32WasNGamesAgo):null;
+		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>12 && highestBalance128WasNGamesAgo<24)?ourBet/=(10/highestBalance128WasNGamesAgo):null;
+		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>24 && highestBalance128WasNGamesAgo<48)?ourBet/=(20/highestBalance128WasNGamesAgo):null;
+		((highestBalance128WasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalance128WasNGamesAgo>48 && highestBalance128WasNGamesAgo<96)?ourBet/=(40/highestBalance128WasNGamesAgo):null;
+		((highestBalanceWasNGamesAgo!=highestBalance128WasNGamesAgo) && (highestBalanceWasNGamesAgo!=highestBalance32WasNGamesAgo) &&  highestBalanceWasNGamesAgo>256 && highestBalanceWasNGamesAgo<512)?ourBet/=(224/highestBalanceWasNGamesAgo):null;
+		((highestBalanceWasNGamesAgo!=highestBalance128WasNGamesAgo) && (highestBalanceWasNGamesAgo!=highestBalance32WasNGamesAgo) && highestBalanceWasNGamesAgo>512 && highestBalanceWasNGamesAgo<1024)?ourBet/=(448/highestBalanceWasNGamesAgo):null;
 	}
 	/*
 	if (highestBalanceWasNGamesAgo<32){
@@ -331,7 +332,7 @@ window.learner.strategy[0]=function(){
 	predict2x<0?ourBet=100:null;
 	console.log(`highestBalance512WasNGamesAgo   : ${highestBalanceWasNGamesAgo} @ ${(highestBalanceWas/100).toFixed(0)} bits ~~~ currentBalance ${(player.currentBankroll/100).toFixed(0)} bits as a percentOfHighestBalance ${dispMod(percentOfHighestBalance)}
 highestBalance128WasNGamesAgo: ${highestBalance128WasNGamesAgo} @ ${(highestBalance128Was/100).toFixed(0)} bits ~~~ currentBalance ${(player.currentBankroll/100).toFixed(0)} bits as a percentOfHighestBalance128 ${dispMod(percentOfHighestBalance128)}
-highestBalance32WasNGamesAgo : ${highestBalance32WasNGamesAgo} @ ${(highestBalance128Was/100).toFixed(0)} bits ~~~ currentBalance ${(player.currentBankroll/100).toFixed(0)} bits as a percentOfHighestBalance32 ${dispMod(percentOfHighestBalance32)}
+highestBalance32WasNGamesAgo : ${highestBalance32WasNGamesAgo} @ ${(highestBalance32Was/100).toFixed(0)} bits ~~~ currentBalance ${(player.currentBankroll/100).toFixed(0)} bits as a percentOfHighestBalance32 ${dispMod(percentOfHighestBalance32)}
 |~~~~~~~~~~~~~~~ MODS ~~~~ MODS ~~~~ MODS ~~~~~~~~~~~~~~~
 ${modString} 
 |~~~~~~~~~~~~~~~ MODS ~~~~ MODS ~~~~ MODS ~~~~~~~~~~~~~~~
@@ -354,5 +355,4 @@ ourBet: ${(ourBet/100).toFixed(1)} ~~ predict2x: ${predict2x.toFixed(1)} `);
 	};
 
 }
-
 
